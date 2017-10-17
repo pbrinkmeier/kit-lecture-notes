@@ -92,15 +92,15 @@ In the week before the Hauptklausur there will be **additional Tutoria** ("Zusat
 
 - Contains data (which program instructions are a part of).
 - CPUs come with a memory controller.
-- Usually, loading fetching instructions from RAM is much slower than their execution on the CPU.
-    - Effective caching can be used because instructions are in a sequence most of the time (**TBD**: spatial blabla).
+- Usually, fetching instructions from RAM is much slower than their execution on the CPU.
+    - Caching can be used effectively because instructions are in a sequence most of the time (**TBD**: spatial blabla).
 
 **TBD**: access times images
 
 #### CPU cache organization
 
 - CPU caches are hardware.
-- They contain **chunks of main memory copied for faster access**.
+- They contain **chunks of main memory replicated for faster access**.
 - There usually are **multiple levels of caches**; on an Haswell chip, there are the caches L1 through L3 (lower number is closer to the processor).
     - The closer to the processor, the lower is the access time.
     - The closer to the processor, the smaller is the cache.
