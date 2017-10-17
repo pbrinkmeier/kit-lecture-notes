@@ -7,7 +7,7 @@
 __Dozent:__  
 Prof. Dr. Hans P. Reiser (<hans.reiser@kit.edu>)  
 __Übungen:__  
-Mathias Gottschlag, M.Sc. (<gottschlag@kit.edu>)  
+M.Sc. Mathias Gottschlag (<gottschlag@kit.edu>)  
 Dipl.-Inform. Marc Rittinghaus (<rittinghaus@kit.edu>)
 
 __Vorlesungsmaterialien:__ [KIT-ILIAS](https://ilias.studium.kit.edu/ilias.php?ref_id=710820&cmd=frameset&cmdClass=ilrepositorygui&cmdNode=75&baseClass=ilrepositorygui) (Passwort: BS17)
