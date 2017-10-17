@@ -23,13 +23,13 @@
 
 ## Modes of Execution
 
-<img src="img/02-modes-of-execution.png" style="float: right;">
-
 - **User Mode** (x86: CPL3 / "Ring 3")
     - Only non-privileged instructions
     - Cannot manage hardware
 - **Kernel Mode** (x86: CPL0 / "Ring 0")
     - All instructions allowed, e.g. privileged instructions like halt or interrupts
+
+![](img/02-modes-of-execution.png)
 
 ## OS Invocation
 
@@ -48,14 +48,14 @@ The OS Kernel does **not** always run in the background. Three occasions invoke 
 
 #### System Calls vs APIs
 
-<img src="img/02-system-call-api.png" style="float: right;">
-
 Programmers often use _APIs_ which themselves use system calls internally.  
 Example: applications calls `printf` function from library which uses the `write` syscall to write to the standard output buffer.
 
 Most common APIs:
 - **POSIX** API für UNIX, Linux, macOS, ...
 - **Win32** for Windows
+
+![](img/02-system-call-api.png)
 
 #### System Call Implementation
 
@@ -124,13 +124,13 @@ A process is an "instance" of a program __running in kernel space__. Each proces
 
 #### Address Space Layout
 
-<img src="img/02-address-space-layout.png" style="float: right;">
-
 Address spaces are laid-out in different sections. Memory addresses between sections are illegal, using them results in a page fault (more specifically called _segmentation faults_).
 
 **Stack:** Function history and local variables  
 **Data:** Constants, static vars, global vars, strings  
 **Text:** Program code
+
+![](img/02-address-space-layout.png)
 
 ### Threads
 
