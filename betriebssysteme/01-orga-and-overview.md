@@ -1,23 +1,17 @@
-# Overview
+[zurück](README.md)
 
-> 2017-10-16
+# 01: Orga and overview
 
-## The lecture
+> 17.10.2017
 
-Professor: Dr. Hans Reiser <hans.reiser@kit.edu>
-
-Assistants: gottschlag@kit.edu, rittinghaus@kit.edu
-
-Password for the ILIAS page: **BS17**
-
-### Tutoria
+## Tutoria
 
 Sign-up for Tutoria: https://wiwi.link/os2017
 
 Each week there will be two worksheets: so-called **"Tutoriumsblätter"** and **"Übungsblätter"**.
 Only the Übungsblatter will be turned in and graded but it is highly recommended to do both sheets.
 
-### Exams
+## Exams
 
 - Hauptklausur: **2018-03-02**, 14:00, 2 hours
 - Übungsscheinklausur: **2018-03-22**, 11:00, 2 hours
