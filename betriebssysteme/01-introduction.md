@@ -108,6 +108,10 @@ In the week before the Hauptklausur there will be **additional Tutoria** ("Zusat
 - Typically, caches are managed in so-called **"cache-lines" of 64 Bytes**.
 - **"Cache hit"**: Requested data is stored in cache (e.g. "L2 cache hit").
 - **"Cache miss"**: Requested data is not stored in cache (e.g. "L1 cache miss").
+- Types of cache misses:
+    - **Compulsory**: Data has never been requested before.
+    - **Capacity**: Cache does not have enough space for the "Working Set".
+    - **Conflict**: Cache management failed.
 
 #### Interplay of CPU and devices
 
