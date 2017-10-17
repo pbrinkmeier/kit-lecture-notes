@@ -10,7 +10,7 @@ __Übungen:__
 Mathias Gottschlag, M.Sc. (<gottschlag@kit.edu>)  
 Dipl.-Inform. Marc Rittinghaus (<rittinghaus@kit.edu>)
 
-__Vorlesungsmaterialien:__ [KIT-ILIAS](https://ilias.studium.kit.edu/ilias.php?ref_id=710820&cmd=frameset&cmdClass=ilrepositorygui&cmdNode=75&baseClass=ilrepositorygui)
+__Vorlesungsmaterialien:__ [KIT-ILIAS](https://ilias.studium.kit.edu/ilias.php?ref_id=710820&cmd=frameset&cmdClass=ilrepositorygui&cmdNode=75&baseClass=ilrepositorygui) (Passwort: BS17)
 
 ## Inhalte
 
@@ -28,5 +28,5 @@ __Vorlesungsmaterialien:__ [KIT-ILIAS](https://ilias.studium.kit.edu/ilias.php?r
 
 _Die Vorlesungsfolien und Übungsblätter sind in englischer Sprache verfasst, deshalb wurde dies für den Mitschrieb übernommen._
 
-- [01: Orga and overview](01.md) _16.10.2017_
-- [02: OS concepts](02.md) _17.10.2017_
+- [01: Orga and overview](01-orga-and-overview.md) _16.10.2017_
+- [02: OS concepts](02-os-concepts.md) _17.10.2017_
