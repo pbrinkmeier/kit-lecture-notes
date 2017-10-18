@@ -4,6 +4,21 @@
 
 > 16.10.2017
 
+## Table of Contents
+
+- [Tutoria](#tutoria)
+- [Exams](#exams)
+- [Contents](#contents)
+- [Recommended literature](#recommended-literature)
+- [Introduction](#introduction)
+    - [What is an operating system?](#what-is-an-operating-system)
+    - [History](#history)
+    - [Hardware](#hardware)
+        - [CPU](#cpu)
+        - [RAM](#ram)
+        - [CPU cache organization](#cpu-cache-organization)
+        - [Interplay of CPU and devices](#interplay-of-cpu-and-devices)
+
 ## Tutoria
 
 Sign-up for Tutoria: https://wiwi.link/os2017
@@ -21,7 +36,7 @@ However, **attendance to the Übungsscheinklausur is mandatory.**
 
 In the week before the Hauptklausur there will be **additional Tutoria** ("Zusatztutorien") which will be announced in the lecture.
 
-### Contents of the lecture
+## Contents
 
 - Processes and threads
 - Scheduling
@@ -31,7 +46,7 @@ In the week before the Hauptklausur there will be **additional Tutoria** ("Zusat
 - File systems
 - Input/Output systems
 
-### Recommended literature
+## Recommended literature
 
 **TBD**
 
