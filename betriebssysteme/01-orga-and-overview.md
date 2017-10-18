@@ -2,7 +2,7 @@
 
 # 01: Orga and overview
 
-> 17.10.2017
+> 16.10.2017
 
 ## Tutoria
 
