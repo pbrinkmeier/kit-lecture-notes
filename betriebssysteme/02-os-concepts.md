@@ -16,6 +16,7 @@
 - [OS Concepts](#os-concepts)
     - [Physical Memory](#physical-memory)
     - [Virtual Memory: Indirect Addressing](#virtual-memory-indirect-addressing)
+        - [MMU features](#mmu-features)
     - [Page Faults](#page-faults)
     - [Processes](#processes)
         - [Address Space Layout](#address-space-layout)
@@ -57,7 +58,7 @@ Programmers often use _APIs_ which themselves use system calls internally.
 Example: application calls `printf` function from library which uses the `write` syscall to write to the standard output buffer.
 
 Most common APIs:
-- **POSIX** API for Linux, macOS, other Unix based systems
+- **POSIX** for UNIX, Linux, macOS, etc.
 - **Win32** for Windows
 
 ![](img/02-system-call-api.png)
@@ -125,7 +126,7 @@ Page faults also occur on illegal memory accesses (e.g. application tries to acc
 
 ### Processes
 
-A_process is a running instance of a program. Each process is associated with:
+A process is a running instance of a program. Each process is associated with:
 
 - A _process control block (PCB)_ containing information about allocated resources
 - A virtual _address space (AS)_ consisting of all available memory locations for that process
