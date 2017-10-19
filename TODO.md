@@ -5,4 +5,4 @@ Do not delete completed to dos; instead, just check them.
 
 - [ ] Create guidelines for git, markdown, LaTeX, etc.
 - [ ] RO orga (2017-10-18)
-- [ ] Script for ToC generation
+- [x] Script for ToC generation
