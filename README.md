@@ -8,7 +8,6 @@
 
 - [Vorlesung Betriebssysteme](betriebssysteme/README.md) _(WS17/18, Prof. Dr. Hans P. Reiser)_
 - [Vorlesung Rechnerorganisation / TI2](rechnerorganisation/README.md) _(WS17/18, Prof. Dr. Wolfgang Karl)_
-- [Vorlesung Theoretische Grundlagen der Informatik](theoretische-grundlagen-der-informatik/README.md) _(WS17/18, Prof. Dr. Dorothea Wagner)_
 
 ## Lizenz
 
