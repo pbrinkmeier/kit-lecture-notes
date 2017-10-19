@@ -6,7 +6,6 @@
 
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
 - [Modes of Execution](#modes-of-execution)
 - [OS Invocation](#os-invocation)
     - [System Calls](#system-calls)
