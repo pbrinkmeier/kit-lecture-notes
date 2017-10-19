@@ -6,9 +6,11 @@
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Modes of Execution](#modes-of-execution)
 - [OS Invocation](#os-invocation)
     - [System Calls](#system-calls)
+        - [Examples (Linux)](#examples-linux)
         - [System Calls vs APIs](#system-calls-vs-apis)
         - [System Call Implementation](#system-call-implementation)
     - [Interrupts](#interrupts)
@@ -16,7 +18,7 @@
 - [OS Concepts](#os-concepts)
     - [Physical Memory](#physical-memory)
     - [Virtual Memory: Indirect Addressing](#virtual-memory-indirect-addressing)
-        - [MMU features](#mmu-features)
+        - [MMU features:](#mmu-features)
     - [Page Faults](#page-faults)
     - [Processes](#processes)
         - [Address Space Layout](#address-space-layout)
