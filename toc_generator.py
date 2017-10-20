@@ -9,7 +9,10 @@ import re
 blacklist = [
     "table-of-contents",
     "contents",
-    "overview"
+    "overview",
+    "inhalt",
+    "inhaltsverzeichnis",
+    "inhaltsübersicht"
 ]
 
 # returns num of hash symbols (= level of header)
@@ -25,7 +28,7 @@ def convert_link(header):
     # lower case, white spaces are converted to dashes and no characters other
     # than letters and numbers allowed
     link = header.lower().replace(" ", "-")
-    return re.sub("[^a-zA-Z0-9\-]", "", link)
+    return re.sub("[^a-zA-ZüÜöÖäÄß0-9\-]", "", link)
 
 # check line for header symbols ('#')
 def check_line(line):
