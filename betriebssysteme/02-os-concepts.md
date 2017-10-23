@@ -2,7 +2,7 @@
 
 # 02: OS concepts
 
-> 17.10.2017
+> 17.10.2017, 23.10.2017
 
 ## Table of Contents
 
@@ -22,6 +22,11 @@
     - [Processes](#processes)
         - [Address Space Layout](#address-space-layout)
     - [Threads](#threads)
+    - [Policies vs Mechanisms](#policies-vs-mechanisms)
+    - [Scheduling](#scheduling)
+    - [Files](#files)
+    - [Directory tree](#directory-tree)
+    - [Storage Management](#storage-management)
 
 ## Modes of Execution
 
@@ -151,3 +156,41 @@ Each process consists of >= 1 threads, each containing the following data:
 - The _stack pointer (SP)_ stores the address of the top of the stack
 - The _program status word (PSW)_ contains flags about execution history
 - More: general purpose registers, floating point registers etc.
+
+### Policies vs Mechanisms
+
+- **Mechanism:** Implementation of what is done (e.g. the commands to put a HDD into standby mode)
+- **Policy:** The rules which decide when what is done and how much (e.g. how often, how many resources are used, ...)
+
+**Mechanisms can be reused even when the policy changes.**
+
+### Scheduling
+
+When multiple processes and threads are available, the OS needs to switch between processes to provide multi-tasking.
+
+The _scheduler_ decides which job to run next (policy) based on fairness and adhering priorities, the _dispatcher_ performs the actual task-switching (mechanism).
+
+### Files
+
+The OS hides peculiarities of disks and other I/O devices. Programmers use device-independent files and directories for persistent data.
+
+A _file system_ is used as an abstraction layer between files/directories and the actual storage hardware by translating directory names, file names and data offsets to blocks. Programmers operate on these files using file system operations such as `open`, `read` and `seek`.
+
+Processes can communicate directly by using a _named pipe_ file. On Linux systems they can be created using `mkfifo`, writing and reading data on them is equal to usual files except sent data will never be saved to a persistent storage.
+
+### Directory tree
+
+Directories form a directory tree hierarchy. The _root directory_ is the topmost directory in the directory tree, files are specified by providing the _path name_ to the file.
+
+File systems can be _mounted_ on a directory. While on UNIX systems it's common to combine multiple file systems into a single file hierarchy (right), Windows has seperate trees for multiple file systems that each use their own drive letter (left).
+
+![](img/02-mounting.png)
+
+### Storage Management
+
+_Drivers_ hide specific hardware peculiarities, the OS can then provide an interface to abstract physical properties to logical units.
+
+The OS can also increase I/O performance using...
+- **Buffering:** Store data temporarily while it's being transferred
+- **Caching:** Store parts of data in faster storage
+- **Spooling:** Overlay of output of one job with input of other jobs
