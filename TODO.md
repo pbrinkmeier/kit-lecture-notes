@@ -1,8 +1,7 @@
-# To do
+# To-Do
 
-Add new to dos at the top of the list.
-Do not delete completed to dos; instead, just check them.
+Neue To-Dos bitte am Anfang der Liste einfügen. Erledigte Elemente nicht löschen sondern abhaken.
 
-- [ ] Create guidelines for git, markdown, LaTeX, etc.
-- [ ] RO orga (2017-10-18)
-- [x] Script for ToC generation
+- [ ] Liste von wichtigen Abkürzungen in Betriebssysteme
+- [ ] Richtlinien für git, Markdown, LaTeX, etc.
+- [x] Skript für Inhaltsverzeichnis-Generierung
