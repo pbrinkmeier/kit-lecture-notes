@@ -30,4 +30,5 @@ _Die Vorlesungsfolien und Übungsblätter sind in englischer Sprache verfasst, d
 
 - [01: Orga and overview](01-orga-and-overview.md) _16.10.2017_
 - [02: OS concepts](02-os-concepts.md) _17.10.2017, 23.10.2017_
-- [03: Processes, Address Spaces and Compiling, Linking, Loading](03-processes.md) _23.10.2017_
+- [03: Processes, Address Spaces and Compiling, Linking, Loading](03-processes.md) _23.10.2017, 24.10.2017_
+- [04: Process API](04-process-api.md) _24.10.2017_
