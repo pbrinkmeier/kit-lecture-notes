@@ -2,7 +2,7 @@
 
 # 03: Processes, Address Spaces and Compiling, Linking, Loading
 
-> 23.10.2017
+> 23.10.2017, 24.10.2017
 
 ## Table of Contents
 
@@ -16,6 +16,15 @@
         - [3. Dynamic Memory Allocation in the Heap Segment](#3-dynamic-memory-allocation-in-the-heap-segment)
     - [Typical Process Address Space Layout](#typical-process-address-space-layout)
 - [Compiling, Linking and Loading](#compiling-linking-and-loading)
+    - [The C Programming Language](#the-c-programming-language)
+    - [The C Build Process](#the-c-build-process)
+    - [Linker](#linker)
+        - [Dynamic Linking](#dynamic-linking)
+    - [Executing A Program](#executing-a-program)
+    - [Shared Libraries](#shared-libraries)
+        - [Static Shared Libraries](#static-shared-libraries)
+        - [Dynamic Shared Libraries](#dynamic-shared-libraries)
+        - [Static vs. Dynamic Shared Libaries](#static-vs-dynamic-shared-libaries)
 
 ## Processes
 
@@ -93,4 +102,88 @@ This part happens in user-space, no need to contact the kernel.
 
 ## Compiling, Linking and Loading
 
-_todo_
+### The C Programming Language
+
+In 1966 Martin Richards created BCPL for building compilers and OS. 1969, Ken Thompson created B, a simpler version of BCPL for PDP-7. Later between 1969 and 1973 Dennis Ritchie developed C for PDP-11, which was highly influenced by B and is very well-suited for OS development.
+
+C deals with the same objects that computers do: numbers, characters, addresses (pointers), arrays, structures, calls, jumps and conditional branches (functions, loops, if/switch, ...).
+
+### The C Build Process
+
+![](img/03-build-process.png)
+
+- _Headers (.h)_ are `#include`d, macros are expanded in the _preprocessor_ before passing a `.c` file to the _compiler_.
+- The compiler translates every `.c` file into an object file (`.o`).
+- The _linker_ combines all `.o` files to an _executable binary_. The `.o` files need _exactly_ one `main()` function (entry point for program).
+
+### Linker
+
+The linker (Linux: `ld`) builds the executable from object files by...
+- ...constructing a global symbol table which maps labels to addresses
+- ...patching addresses in code (called _relocation_)
+- and finally writing the result to the binary file
+
+In C, the label name is the function name -> function names must be unique (other languages allow _overloading_ of functions, C does not).
+
+#### Dynamic Linking
+
+You may want to load plugins (e.g. kernel modules) at runtime, this can be done using _dynamic linking_.
+
+**_dyn\_square.c_**
+```c
+int dyn_square(int a)
+{
+        return a * a;
+}
+```
+
+**_main.c_**
+```c
+void *dyn = dlopen("dyn_square.o", RTLD_LAZY);
+int (*square)(int) = dlsym(dyn, "dyn_square");
+square(42);
+```
+
+### Executing A Program
+
+When starting a program, the loader...
+- reads code/data segments from disk into buffer cache
+- maps code read-only and executable
+- inits rw-data and data sections (maps them accordingly)
+- allocates space for heap (`sbrk`) and stack
+- allocates space for BSS and nulls everything in it
+
+In reality there are lots of optimizations:
+- code/data already in cache? don't read it again
+- stack space allocated when used
+- BSS not allocated until used
+- code lazily loaded when first used
+- share code with already running processes
+
+### Shared Libraries
+
+"Everyone" links to the standard library, no need to have a copy of this library in _every_ executable.
+
+Idea: Static shared libraries
+
+#### Static Shared Libraries
+
+- Define a shared library segment in all processes that use that library
+- The linker links the executable against that segment but doesn't copy it into the binary file
+- Share section among all processes by loading shared library into buffer cache once
+
+**Problem:** All programs need the library at the same place in virtual address space. What if another lib occupies that space or the sum of all shared libs exceeds the address space?  
+**Idea:** Dynamic shared libraries
+
+#### Dynamic Shared Libraries
+
+Dynamic shared libraries allow loading a library at any virtual address. However how do you call functions if the position varies?
+
+Possible solutions: _Position-independent code (PIC)_
+- Use a _procedure linkage table (PLT)_ that contains _stubs_ pointing to the GOT/functions that are linked in dynamically
+- _Global offset table (GOT)_ maps stubs to functions in various dynamic libraries
+- _Lazy dynamic binding_ links each function on it's first call, not at startup
+
+#### Static vs. Dynamic Shared Libaries
+
+![](img/03-static-vs-dynamic-shared-libraries.png)
