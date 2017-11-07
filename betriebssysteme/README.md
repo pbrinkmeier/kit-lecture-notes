@@ -32,3 +32,5 @@ _Die Vorlesungsfolien und Übungsblätter sind in englischer Sprache verfasst, d
 - [02: OS concepts](02-os-concepts.md) _17.10.2017, 23.10.2017_
 - [03: Processes, Address Spaces and Compiling, Linking, Loading](03-processes.md) _23.10.2017, 24.10.2017_
 - [04: Process API](04-process-api.md) _24.10.2017_
+- [05: Threads](05-threads.md) _30.10.2017, 06.11.2017_
+- [06: Dispatching, Scheduling, Scheduling Policies](06-scheduling.md) _07.11.2017_
