@@ -28,7 +28,7 @@ The OS interacts directly with compiled programs. The following list is a set of
 - **and, or, xor**: bitwise and/or/xor of two operands storing the result in the first operand  
 - **not**: logical negation  
 
-#### Branching
+#### Control flow
 
 - **jmp**: continue execution at given address  
 - **je**: &ldquo;jump equal&rdquo; (jump if condition is true)  
@@ -50,10 +50,21 @@ A **base pointer** (BP), also known as **frame pointer** (FP), can be used to or
 ## Application Binary Interface
 
 The **Application Binary Interface** (ABI) standardizes communication between applications and the OS.
-It may specify executable/object file layout, calling conventions, stack alignment rules etc. The **calling conventions** define the way function calls are implemented in order to achieve interoperatibility across compilers.
+It may specify executable/object file layout, calling conventions, stack alignment rules etc. The **calling conventions** define the way function calls are implemented in order to achieve interoperatibility across compilers. In C, these conventions are (historically) called **cdecl**.
 
 **Example**: SystemV AMD64 ABI (used in Linux, BSD and OS X)
 
-## System Calls
+### x86 calling conventions
 
-## Process API
+When a function is called, the calling function
+
+- saves the state of the local scope
+- sets up parameters where the called function can find them
+- jumps to (*calls*) the called function
+
+The called function
+
+- sets up a new local scope
+- runs its body (which may include calling other functions)
+- puts the return value where the calling function can find them
+- jumps back (*returns*) to the calling function
