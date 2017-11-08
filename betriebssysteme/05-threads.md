@@ -67,6 +67,14 @@ It doesn’t matter whether you’re using multiple processes, mulitple threads 
 
 A rule of thumb: processes share less data than threads, so there is less that can go wrong.
 
+#### Making singlethreaded code multithreaded
+
+Not all state should be shared across threads.
+E.g. `errno` contains the return value of the last syscall, but is thread-global
+
+A lot of library code is not **threadsafe**.
+When working with multiple threads, you should generally use `_r` variants of functions, if available (e.g. `strtok_r`, `rand_r`).
+
 ## Data structures
 
 Processes primarily hold resources; threads are states of exectution.
@@ -199,4 +207,7 @@ One of the goals here is not too call the kernel in thread management calls such
 To accomplish this goal, multiple ULTs run on each KLT.
 When a process blocks, the user space system switches context without calling the kernel.
 
-The approach is to use so-called **upcalls**. The kernel notices — by receiving a syscall — that a process will block and sends a signal to the process. The exception handler of the process can then schedule another user level thread to run. The kernel later informs the process that the action has finished via another upcall.
+The approach is to use so-called **upcalls**.
+The kernel notices — by receiving a syscall — that a process will block and sends a signal to the process.
+The exception handler of the process can then schedule another user level thread to run.
+The kernel later informs the process that the action has finished via another upcall.
