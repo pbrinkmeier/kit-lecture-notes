@@ -6,191 +6,210 @@
 
 ## Table of Contents
 
-- [Modes of Execution](#modes-of-execution)
-- [OS Invocation](#os-invocation)
-    - [System Calls](#system-calls)
+- [Modes of execution](#modes-of-execution)
+- [OS invocation](#os-invocation)
+    - [System calls](#system-calls)
         - [Examples (Linux)](#examples-linux)
-        - [System Calls vs APIs](#system-calls-vs-apis)
-        - [System Call Implementation](#system-call-implementation)
+        - [System calls vs APIs](#system-calls-vs-apis)
+        - [System call implementation](#system-call-implementation)
     - [Interrupts](#interrupts)
     - [Exceptions](#exceptions)
-- [OS Concepts](#os-concepts)
-    - [Physical Memory](#physical-memory)
-    - [Virtual Memory: Indirect Addressing](#virtual-memory-indirect-addressing)
-        - [MMU features:](#mmu-features)
-    - [Page Faults](#page-faults)
+- [OS concepts](#os-concepts)
+    - [Physical memory](#physical-memory)
+    - [Virtual memory: indirect addressing](#virtual-memory-indirect-addressing)
+        - [MMU features](#mmu-features)
+    - [Page faults](#page-faults)
     - [Processes](#processes)
-        - [Address Space Layout](#address-space-layout)
+        - [Address space layout](#address-space-layout)
     - [Threads](#threads)
-    - [Policies vs Mechanisms](#policies-vs-mechanisms)
+    - [Policies vs mechanisms](#policies-vs-mechanisms)
     - [Scheduling](#scheduling)
     - [Files](#files)
     - [Directory tree](#directory-tree)
-    - [Storage Management](#storage-management)
+    - [Storage management](#storage-management)
 
-## Modes of Execution
+## Modes of execution
 
 - **User Mode** (x86: CPL3 / "Ring 3")
     - Only non-privileged instructions
-    - Cannot manage hardware
+    - Can not manage hardware
 - **Kernel Mode** (x86: CPL0 / "Ring 0")
     - All instructions allowed, e.g. privileged instructions like halt or interrupts
 
-![](img/02-modes-of-execution.png)
+![Rings](img/02-modes-of-execution.png)
 
-## OS Invocation
+## OS invocation
 
-The OS Kernel does **not** always run in the background. Three occasions invoke the kernel and switch to kernel-mode:
+The OS Kernel does *not* always run in the background. Three occasions invoke the kernel and switch to kernel-mode:
 
-- **System calls:** User-Mode process requires privileges, e.g. reading a file.
-- **Interrupts:** CPU-external device sends a signal, e.g. when a network packet has arrived.
-- **Exceptions:** The CPU signals an unexcepted condition, e.g. an invalid instruction or division by zero.
+- **System calls**: User-Mode process requires privileges, e.g. reading a file
+- **Interrupts**: CPU-external device sends a signal, e.g. when a network packet has arrived
+- **Exceptions**: The CPU signals an unexcepted condition, e.g. an invalid instruction or division by zero
 
-### System Calls
+### System calls
 
-**Problem:** The kernel restricts processes to user-mode to protect them from each other. However now processes aren't able to manage hardware or other protected resources.  
-**Solution:** The OS provides _services_ for hardware management etc. Applications perform _system calls_/_syscalls_, the OS checks permissions and performs action in kernel-mode on behalf of the application.
+- **Problem**: The kernel restricts processes to user-mode to protect them from each other. Hence processes are not able to manage hardware or other protected resources
+- **Solution:** The OS provides _services_ for hardware management etc. Applications perform **system calls** (syscalls), the OS checks permissions and performs actions in kernel-mode on behalf of the applications
 
 #### Examples (Linux)
 
-- `open(file, how, ...)`
+- `open(file, how, …)`
 - `close(fd)`
 - `read(fd, buffer, nbytes)`
 - `write(fd, buffer, nbytes)`
 
-#### System Calls vs APIs
+#### System calls vs APIs
 
 Programmers often use _APIs_ which themselves use system calls internally.
-Example: application calls `printf` function from library which uses the `write` syscall to write to the standard output buffer.
+For example: application calls `printf` function from library which uses the `write` syscall to write to the standard output buffer.
 
 Most common APIs:
+
 - **POSIX** for UNIX, Linux, macOS, etc.
 - **Win32** for Windows
 
-![](img/02-system-call-api.png)
+![Syscalls behind APIs](img/02-system-call-api.png)
 
-#### System Call Implementation
+#### System call implementation
 
-There is only one entry point for all syscalls: the **trap** instruction which switches the CPU to kernel-mode. The _system call dispatcher_ acts as a syscall multiplexer which identifies calls using a unique number. The _system call table_ maps these unique numbers to kernel functions. 
+There is only one entry point for all syscalls: the **trap** instruction which switches the CPU to kernel-mode.
+The **system call dispatcher** acts as a syscall multiplexer which identifies calls using an unique number.
+The **system call table** maps these unique numbers to kernel functions. 
 
 ### Interrupts
 
 Devices use interrupts to signal predefined conditions, e.g. a device controller informs the CPU that an operation is finished.
-
-Interrupts are managed by the _Programmable Interrupt Controller_ (x86: APIC). Interrupts can be "masked" to defer their arrival. Due to a finite length of the interrupt queue, interrupts can get lost.
-
-When an interrupt occurs, the CPU looks up an address in the _interrupt vector_ to pass the interrupt to the correct _interrupt service routing_ in the OS.
+Interrupts are managed by the **Programmable Interrupt Controller** (x86: APIC).
+Interrupts can be **masked** to defer their arrival.
+Due to a finite length of the interrupt queue, interrupts can get lost.
+When an interrupt occurs, the CPU looks up an address in the **interrupt vector** to pass the interrupt to the correct interrupt service routing in the OS.
 
 Notable examples:
-- **Timer-Interrupt:** Periodically interrupts execution so that the Kernel can assure that every process gets enough execution time (among other things).
-- **Network Interface Card (NIC):** Network package was received -> Kernel can forward package and free the NIC buffer
+
+- **Timer-Interrupt**: Periodically interrupts execution so that the Kernel can assure that every process gets enough execution time (among other things)
+- **Network Interface Card (NIC)**: Network package was received; now the Kernel can forward package and free the NIC buffer
 
 **Interrupts occur asynchronously.**
 
 ### Exceptions
 
 Sometimes unusual conditions make further CPU processing impossible, e.g.
-- Execution of a division with a zero denominator
+
+- Execution of a division by zero
 - Write to read-only memory area
 - Program jump to invalid instruction
 
 When an unusual condition occurs:
-1. An _exception_ is generated in the CPU
+
+1. An **exception** is generated in the CPU
 2. CPU interrupts process, gives kernel control
 3. Kernel tries to resolve problem and continue faulting instruction or kills the process
 
-**Exceptions always occur synchronously and in the contex of process.**
+**Exceptions always occur synchronously and in the contex of a process.**
 
-## OS Concepts
+## OS concepts
 
-### Physical Memory
+### Physical memory
 
-- Up to the early 60's: Programs were **directly loaded into physical memory**
-    - Manual partitioning of code into _overlays_ if too big
+- Up to the early ‘60s: Programs were **directly loaded into physical memory**
+    - Manual partitioning of code into overlays if too big
     - No protection: every job (= process) could read and modify all memory
 - Today: **Address Spaces**
     - Isolate bad processes in order to prevent damage, stealing of data or massive memory reservation
-    - Idea: Give programs **illusion of having access to the complete memory**
+    - Idea: Give programs **illusion of having access to all memory**
 
-### Virtual Memory: Indirect Addressing
+### Virtual memory: indirect addressing
 
-Today, every CPU has a _memory management unit (MMU)_ built-in. It translates virtual addresses to physical addresses for every load and store operation.
+Today, every CPU has a **memory management unit** (MMU) built-in.
+It translates virtual addresses to physical addresses for every load and store operation.
 
-![](img/02-virtual-memory.png)
+![MMU](img/02-virtual-memory.png)
 
-#### MMU features:
+#### MMU features
 
 - Kernel-only virtual addresses (kernel uses virtual addresses too)
 - Read-only virtual addresses (for memory sharing across processes)
-- Makes code injection harder (e.g. areas where execution is disabled; write-protecting the text section)
+- Makes code injection harder (e.g. areas where execution is disabled; write-protection of the text section)
 
-### Page Faults
+### Page faults
 
-The MMU issues a _page fault_ whenever a virtual address is accessed that isn't mapped to physical memory at the moment. The OS usually loads the faulting address and continues execution.
+The MMU issues a **page fault** whenever a virtual address is accessed that isn't mapped to physical memory at the moment.
+The OS usually loads the faulting address and continues execution.
 
 Page faults also occur on illegal memory accesses (e.g. application tries to access kernel or read-only memory).
 
 ### Processes
 
-A process is a running instance of a program. Each process is associated with:
+A process is a running instance of a program.
+Each process is associated with:
 
-- A _process control block (PCB)_ containing information about allocated resources
-- A virtual _address space (AS)_ consisting of all available memory locations for that process
+- A **process control block** (PCB) containing information about allocated resources
+- A virtual **address space** (AS) consisting of all available memory locations for that process
 
 ![](img/02-processes.png)
 
-#### Address Space Layout
+#### Address space layout
 
-Address spaces are laid-out in different sections. Memory addresses between sections are illegal, using them results in a page fault (more specifically called _segmentation fault_).
+Address spaces are laid-out in different **sections**.
+Memory addresses between sections are illegal, using them results in a page fault (more specifically called **segmentation fault**).
 
-**Stack:** Function call history and local variables  
-**Data:** Constants, static vars, global vars, strings  
-**Text:** Program code
+- **Stack**: Function call history and local variables  
+- **Data**: Constants, static vars, global vars, strings  
+- **Text**: Program code
 
-![](img/02-address-space-layout.png)
+![Address space layout](img/02-address-space-layout.png)
 
 ### Threads
 
-Each process consists of >= 1 threads, each containing the following data:
-- The _instruction pointer (IP)_ register stores the address of the currently executed instruction
-- The _stack pointer (SP)_ stores the address of the top of the stack
-- The _program status word (PSW)_ contains flags about execution history
+Each process consists of one or more threads, each containing the following data:
+
+- The **instruction pointer** (IP) register stores the address of the currently executed instruction
+- The **stack pointer** (SP) stores the address of the top of the stack
+- The **program status word** (PSW) contains flags about execution history
 - More: general purpose registers, floating point registers etc.
 
-### Policies vs Mechanisms
+### Policies vs mechanisms
 
-- **Mechanism:** Implementation of what is done (e.g. the commands to put a HDD into standby mode)
-- **Policy:** The rules which decide when what is done and how much (e.g. how often, how many resources are used, ...)
+- **Mechanism**: Implementation of what is done (e.g. the commands to put a HDD into standby mode)
+- **Policy**: The rules which decide when what is done and how much (e.g. how often, how many resources are used, ...)
 
 **Mechanisms can be reused even when the policy changes.**
 
 ### Scheduling
 
-When multiple processes and threads are available, the OS needs to switch between processes to provide multi-tasking.
+When multiple processes and threads are available, the OS needs to switch between processes to provide multitasking.
 
-The _scheduler_ decides which job to run next (policy) based on fairness and adhering priorities, the _dispatcher_ performs the actual task-switching (mechanism).
+The **scheduler** decides which job to run next (policy) based on fairness and adhering priorities, the **dispatcher** performs the actual task-switching (mechanism).
 
 ### Files
 
-The OS hides peculiarities of disks and other I/O devices. Programmers use device-independent files and directories for persistent data.
+The OS hides peculiarities of disks and other I/O devices.
+Programmers use device-independent files and directories for persistent data.
+A **file system** is used as an abstraction layer between files and directories and the actual storage hardware.
+It translates directory and file names and data offsets to blocks.
+Programmers operate on these files using file system operations such as `open`, `read` and `seek`.
 
-A _file system_ is used as an abstraction layer between files/directories and the actual storage hardware by translating directory names, file names and data offsets to blocks. Programmers operate on these files using file system operations such as `open`, `read` and `seek`.
-
-Processes can communicate directly by using a _named pipe_ file. On Linux systems they can be created using `mkfifo`, writing and reading data on them is equal to usual files except sent data will never be saved to a persistent storage.
+Processes can communicate directly by using a **named pipe** file.
+On Linux systems they can be created using `mkfifo`.
+Writing and reading data on named pipes is equal to usual file operations except sent data will never be saved to persistent storage.
 
 ### Directory tree
 
-Directories form a directory tree hierarchy. The _root directory_ is the topmost directory in the directory tree, files are specified by providing the _path name_ to the file.
+Directories form a directory tree hierarchy.
+The **root directory** is the topmost directory in the directory tree, files are specified by providing the **path name** to the file.
 
-File systems can be _mounted_ on a directory. While on UNIX systems it's common to combine multiple file systems into a single file hierarchy (right), Windows has seperate trees for multiple file systems that each use their own drive letter (left).
+File systems can be **mounted** on a directory.
+While on UNIX systems it’s common to combine multiple file systems into a single file hierarchy (right), Windows has seperate trees for multiple file systems that each use their own drive letter (left).
 
-![](img/02-mounting.png)
+![Mounting: UNIX vs. Windows](img/02-mounting.png)
 
-### Storage Management
+### Storage management
 
-_Drivers_ hide specific hardware peculiarities, the OS can then provide an interface to abstract physical properties to logical units.
+**Drivers** hide specific hardware peculiarities.
+The OS can then provide an interface from abstract physical properties to logical units.
 
-The OS can also increase I/O performance using...
-- **Buffering:** Store data temporarily while it's being transferred
-- **Caching:** Store parts of data in faster storage
-- **Spooling:** Overlay of output of one job with input of other jobs
+The OS can also increase I/O performance using
+
+- **Buffering**: Store data temporarily while it's being transferred
+- **Caching**: Store parts of data in faster storage
+- **Spooling**: Overlay of output of one job with input of other jobs
