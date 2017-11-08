@@ -63,15 +63,15 @@ In C, these conventions are (historically) called **cdecl**.
 When a function is called, the calling function
 
 1. saves the state of the local scope
-- sets up parameters where the called function can find them
-- jumps to (*calls*) the called function
+2. sets up parameters where the called function can find them
+3. jumps to (*calls*) the called function
 
 The called function then
 
 1. sets up a new local scope
-- runs its body (which may include calling other functions)
-- puts the return value where the calling function can find them
-- jumps back (*returns*) to the calling function
+2. runs its body (which may include calling other functions)
+3. puts the return value where the calling function can find them
+4. jumps back (*returns*) to the calling function
 
 ## Parameter passing and return codes
 
@@ -91,12 +91,12 @@ Return codes are usually stored in the A and D registers.
 When an application &ldquo;traps&rdquo; into the Kernel, the System call handler
 
 1. saves registers that it will use
-- reads passed parameters
-- **sanitizes and checks those parameters**
-- checks if the calling process has permission to perform the requested action
-- performs the requested action on behalf of the process
-- writes return value
-- returns to the process
+2. reads passed parameters
+3. **sanitizes and checks those parameters**
+4. checks if the calling process has permission to perform the requested action
+5. performs the requested action on behalf of the process
+6. writes return value
+7. returns to the process
 
 ## Process API
 
