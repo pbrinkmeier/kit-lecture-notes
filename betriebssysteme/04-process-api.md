@@ -209,11 +209,6 @@ The OS should not run the process until the event occurs.
 
 ![Process states model](img/04-process-states.png)
 
-1. Process blocks for event
-2. Scheduler activates another process
-3. Scheduler activates this process
-4. Event has occurred
-
 ## Process Termination
 
 ### Voluntary exit
