@@ -77,7 +77,6 @@ Some basic Pthread functions are:
 - `Pthread_exit`: terminates the calling thread
 - `Pthread_join`: waits for a specific thread to exit
 - `Pthread_yield`: invoke thread library to choose another process
-```
 
 ### Mulithreaded programming is hard
 
