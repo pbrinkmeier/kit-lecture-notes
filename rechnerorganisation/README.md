@@ -13,6 +13,6 @@ Dr.-Ing. Ömer Terlemez (<terlemez@kit.edu>)
 
 ## Übersicht
 
-- Kapitel 1
-    - [Kapitel 1.1: Historische Anmerkungen](01_1-historische-anmerkungen.md) _18.10.2017_
-    - Kapitel 1.2: Trends in der Rechnerarchitektur _23.10.2017_
+- [Kapitel 1: Historische Anmerkungen, Trends](01-historische-anmerkungen.md) _18.10.2017, 23.10.2017_
+- Kapitel 2: Die Programmiersprache C _25.10.2017, 30.10.2017_
+- [Kapitel 3: Programmierbarer Universalrechner](03-universalrechner.md) _06.11.2017_

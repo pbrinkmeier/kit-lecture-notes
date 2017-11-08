@@ -1,8 +1,8 @@
 [zurück](README.md)
 
-# Kapitel 1.1: Historische Anmerkungen 
+# Kapitel 1: Historische Anmerkungen, Trends
 
-> 18.10.2017
+> 18.10.2017, 23.10.2017
 
 ## Inhaltsverzeichnis
 
@@ -92,3 +92,5 @@ Kilby wechselte im Mai 1958 zu Texas Instruments in Dallas, US und lötete im Se
 Zeitgleich erfindet Noyce bei Fairchild Semiconductor den IC unter Verwendung von Silizium und Aluminium. 1968 gründet er mit Gordon Moore die Firma Intel (kurz für **Int**egrated **el**ectronics).
 
 ![](img/01_1-entwicklung-der-rechnertechnologie.png)
+
+_Zusammenfassung nicht vollständig (nicht prüfungsrelevant)_
