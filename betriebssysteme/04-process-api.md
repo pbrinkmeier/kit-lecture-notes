@@ -16,7 +16,8 @@
 
 ### Assembler (x86 Intel style)
 
-The OS interacts directly with compiled programs. The following list is a set of (simplified) assembler instructions you should know.
+The OS interacts directly with compiled programs.
+The following list is a set of (simplified) assembler instructions you should know.
 
 - **mov**: Copy data from second operand to first operand
 
@@ -38,7 +39,8 @@ The OS interacts directly with compiled programs. The following list is a set of
 
 #### Stack
 
-The **stack pointer** (SP) holds the address of the top of the stack while the stack grows _downwards_. The SP points to the last allocated word (&ldquo;pre-decremented stack pointer&rdquo;).
+The **stack pointer** (SP) holds the address of the top of the stack while the stack grows _downwards_.
+The SP points to the last allocated word (&ldquo;pre-decremented stack pointer&rdquo;).
 
 - **push**: makes room for values on the stack by decrementing the SP and the inserting new element
 - **pop**: cleans up values from the stack by incrementing the SP (removed data is not overwritten)
@@ -50,7 +52,9 @@ A **base pointer** (BP), also known as **frame pointer** (FP), can be used to or
 ## Application Binary Interface
 
 The **Application Binary Interface** (ABI) standardizes communication between applications and the OS.
-It may specify executable/object file layout, calling conventions, stack alignment rules etc. The **calling conventions** define the way function calls are implemented in order to achieve interoperatibility across compilers. In C, these conventions are (historically) called **cdecl**.
+It may specify executable/object file layout, calling conventions, stack alignment rules etc.
+The **calling conventions** define the way function calls are implemented in order to achieve interoperatibility across compilers.
+In C, these conventions are (historically) called **cdecl**.
 
 **Example**: SystemV AMD64 ABI (used in Linux, BSD and OS X)
 
@@ -78,7 +82,9 @@ The system call number must be passed to the system along with the other argumen
 
 Arguments may also just all be transferred via main memory.
 
-A **return code** needs to be returned to the application. Usually, negative numbers denote an error condition, positive numbers and zero denote success. Return codes are usually stored in the A and D registers.
+A **return code** needs to be returned to the application.
+Usually, negative numbers denote an error condition, positive numbers and zero denote success.
+Return codes are usually stored in the A and D registers.
 
 ### System call handler
 
@@ -121,4 +127,72 @@ Every process has an unique **process identifier** (PID).
     - `status` is a data structure that process exit information will be written to (e.g. the exit status)
     - On success, the argument `pid` is returned, -1 signifies failure
 
-![Process states](img/04-stack.png)
+![Process states](img/04-posix-process-api.png)
+
+### Process environment
+
+Each process has **environment variables** that can be passed at creation.
+The environment is typically defined by your shell (type `env` in a Linux shell).
+In order to pass **e**nvironment variables, use execv**e** instead of  exec.
+
+### Command line arguments
+
+Each process is started with a vector of command line arguments
+The first argument always is the name of the executable.
+Other arguments may be passed when running a program on the command line.
+
+```
+$ my_app arg1 arg2 arg3
+```
+
+### Passing the argument vector
+
+All C programs need to include a function `main` of the following signature.
+
+```int main(int argc, char argv**, char envp**);```
+
+You may omit `envp` or `argc`, `argv` and `envp` together.
+
+- `argc` contains the number of arguments
+- `argv` is the command line argument vector
+- `envp` is the environment variable vector
+
+The function `main` is just handled like any other function in C.
+On process creation, the OS:
+
+- writes the argument strings somewhere in main memory
+- creates the stack for the process, pushing the `argv` and `envp` pointers to those strings
+- jumps to the function `main`
+
+## POSIX process hierarchy
+
+**Parent process** creates **child process**, which can become a parent process too, forming a **process tree**.
+Parent and children share resources (part of the address space) and execute concurrently.
+Parents can wait for the children to terminate using `waitpid` (see above).
+
+![Process hierarchy](img/04-posix-hierarchy.png)
+
+### Daemons
+
+Some processes are designed to run in the background, for example web servers.
+Those processes are called **daemons**.
+After creation, a daemon detaches from its parent process and reattaches to the root of the process tree, the init process.
+Thus, the daemon keeps running even if its initial parent process terminates.
+
+- In C, you can do this by creating a new session (using `setsid`)
+- In Bash, you can use `disown`
+- In a Linux shell, run `pstree -a` to show the process tree
+
+### Process states
+
+Sometimes, processes wait for events (for example arrival of a network packet) or other processes.
+Waiting processes are called **blocking**.
+Processes usually block on system calls.
+The OS should not run the process until the event occurs.
+
+![Process states model](img/04-process-states.png)
+
+1. Process blocks for event
+2. Scheduler activates another process
+3. Scheduler activates this process
+4. Event has occurred
