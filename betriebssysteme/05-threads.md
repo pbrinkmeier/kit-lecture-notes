@@ -92,7 +92,7 @@ A rule of thumb: processes share less data than threads, so there is less that c
 #### Making singlethreaded code multithreaded
 
 Not all state should be shared across threads.
-E.g. `errno` contains the return value of the last syscall, but is thread-global
+E.g. `errno` contains the return value of the last syscall, but is thread-global.
 
 A lot of library code is not **threadsafe**.
 When working with multiple threads, you should generally use `_r` variants of functions, if available (e.g. `strtok_r`, `rand_r`).
@@ -164,7 +164,7 @@ Periodic thread switching can be implemented using alarms.
 #### Address space layout with two user level threads
 
 The uppermost area of the AS is used by the thread library as its stack and is known to the kernel.
-When the kernel **upcalls**, this area is used.
+When an alarm is received (cheap version of **upcalls**, see below), this area is used.
 The thread stacks are allocated on the process’ heap using malloc .
 
 ### One-to-one model
@@ -201,7 +201,7 @@ However, there are some issues with kernel level threads:
 #### Address space layout with two kernel levels threads
 
 Every thread gets its designated stack growing downwards.
-The process heap is shared.****
+The process heap is shared.
 
 ### M-to-N model
 
@@ -229,7 +229,7 @@ One of the goals here is not too call the kernel in thread management calls such
 To accomplish this goal, multiple ULTs run on each KLT.
 When a process blocks, the user space system switches context without calling the kernel.
 
-The approach is to use so-called **upcalls**.
+The solution is to use so-called **upcalls**.
 The kernel notices — by receiving a syscall — that a process will block and sends a signal to the process.
 The exception handler of the process can then schedule another user level thread to run.
 The kernel later informs the process that the action has finished via another upcall.
