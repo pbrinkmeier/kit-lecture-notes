@@ -56,7 +56,7 @@ The following list is a set of (simplified) assembler instructions you should kn
 
 #### Stack
 
-The **stack pointer** (SP) holds the address of the top of the stack while the stack grows _downwards_.
+The **stack pointer** (SP) holds the address of the top of the stack while the stack grows _downwards_ (as in the x86 architecture).
 The SP points to the last allocated word (“pre-decremented stack pointer”).
 
 - **push**: makes room for values on the stack by decrementing the SP and the inserting new element
