@@ -34,3 +34,6 @@ _Die Vorlesungsfolien und Übungsblätter sind in englischer Sprache verfasst, d
 - [04: Process API](04-process-api.md) _24.10.2017_
 - [05: Threads](05-threads.md) _30.10.2017, 06.11.2017_
 - [06: Dispatching, Scheduling, Scheduling Policies](06-scheduling.md) _07.11.2017_
+
+
+- [Glossary](glossary.md) _(list of important terms and abbreviations)_
