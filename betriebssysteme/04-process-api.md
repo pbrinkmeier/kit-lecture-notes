@@ -18,30 +18,41 @@
 
 The OS interacts directly with compiled programs. The following list is a set of (simplified) assembler instructions you should know.
 
-_Data movement:_  
-**mov:** Copy data from second operand to first operand
+- **mov**: Copy data from second operand to first operand
 
-_Arithmetic commands:_  
-**add/sub:** Add, substract, multiply or divide two integer operands storing the result in the first operand  
-**inc/dec:** Increment or decrement from register or memory location  
-**shl/shr:** Bitshift left/right  
-**and/or/xor:** Bitwise and/or/xor of two operands storing the result in the first operand  
-**not:** Logical negation  
+#### Arithmetic instructions
 
-_Basic jump/branch/call commands:_  
-**jmp:** Continue execution at given address  
-**je:** "jump equal" (jump if condition is true)  
-**jz:** "jump zero" (jump if operand zero)  
-**call:** Jump to a function (subrouting) by pushing current code location to stack  
-**return:**  Return from subroutine (to return address on the stack)
+- **add, sub, mul, div**: add, subtract, multiply or divide two integer operands storing the result in the first operand  
+- **inc, dec**: increment or decrement from register or memory location  
+- **shl, shr**: bitshift left/right  
+- **and, or, xor**: bitwise and/or/xor of two operands storing the result in the first operand  
+- **not**: logical negation  
 
-### x86 Stack
+#### Branching
 
-The _stack pointer (SP)_ holds the address of the top of the stack while the stack grows _downwards_. The SP points to the last allocated word ("pre-decremented stack pointer").
+- **jmp**: continue execution at given address  
+- **je**: &ldquo;jump equal&rdquo; (jump if condition is true)  
+- **jz**: &ldquo;jump zero&rdquo; (jump if operand is zero)  
+- **call**: jump to a function (subroutine) by pushing current code location to stack  
+- **return**:  return from subroutine (to return address on the stack)
 
-_push_ makes room for values on the stack by decrementing the SP and the new element. _pop_ cleans up values from the stack by incrementing the SP (removed data is not overwritten).
+#### Stack
 
-![](img/04-stack.png)
+The **stack pointer** (SP) holds the address of the top of the stack while the stack grows _downwards_. The SP points to the last allocated word (&ldquo;pre-decremented stack pointer&rdquo;).
+
+- **push**: makes room for values on the stack by decrementing the SP and the inserting new element
+- **pop**: cleans up values from the stack by incrementing the SP (removed data is not overwritten)
+
+![Stack layout](img/04-stack.png)
+
+A **base pointer** (BP), also known as **frame pointer** (FP), can be used to organize larger chunks of the stack called **stack frames**.
+
+## Application Binary Interface
+
+The **Application Binary Interface** (ABI) standardizes communication between applications and the OS.
+It may specify executable/object file layout, calling conventions, stack alignment rules etc. The **calling conventions** define the way function calls are implemented in order to achieve interoperatibility across compilers.
+
+**Example**: SystemV AMD64 ABI (used in Linux, BSD and OS X)
 
 ## System Calls
 
