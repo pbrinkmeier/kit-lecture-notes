@@ -49,15 +49,15 @@ The following list is a set of (simplified) assembler instructions you should kn
 #### Control flow
 
 - **jmp**: continue execution at given address  
-- **je**: &ldquo;jump equal&rdquo; (jump if condition is true)  
-- **jz**: &ldquo;jump zero&rdquo; (jump if operand is zero)  
+- **je**: “jump equal” (jump if condition is true)  
+- **jz**: “jump zero” (jump if operand is zero)  
 - **call**: jump to a function (subroutine) by pushing current code location to stack  
 - **return**:  return from subroutine (to return address on the stack)
 
 #### Stack
 
 The **stack pointer** (SP) holds the address of the top of the stack while the stack grows _downwards_.
-The SP points to the last allocated word (&ldquo;pre&ndash;decremented stack pointer&rdquo;).
+The SP points to the last allocated word (“pre-decremented stack pointer”).
 
 - **push**: makes room for values on the stack by decrementing the SP and the inserting new element
 - **pop**: cleans up values from the stack by incrementing the SP (removed data is not overwritten)
@@ -105,7 +105,7 @@ Return codes are usually stored in the A and D registers.
 
 ### System call handler
 
-When an application &ldquo;traps&rdquo; into the Kernel, the System call handler
+When an application “traps” into the Kernel, the System call handler
 
 1. saves registers that it will use
 2. reads passed parameters
@@ -119,7 +119,7 @@ When an application &ldquo;traps&rdquo; into the Kernel, the System call handler
 
 Processes are started in a variety of ways, for example:
 
-- Initialisation (&ldquo;boot process&rdquo;)
+- Initialisation (“boot process”)
 - By another process via a system call
 - User requests a new process (e.g. opening files on the Desktop)
 - Initiation of a batch job
@@ -138,7 +138,7 @@ Every process has an unique **process identifier** (PID).
 
 - `pid = fork()` copies the calling process
     - `pid` is 0 for the new child and the childs PID for the parent
-- `exec(name)` replaces the calling process&rsquo; memory with the executable file `name`
+- `exec(name)` replaces the calling process’ memory with the executable file `name`
 - `exit(status)` terminates the calling process and returns an **exit status**
 - `pid = waitpid(pid, &status)` waits for the termination of child process with identified by `pid`
     - `status` is a data structure that process exit information will be written to (e.g. the exit status)
@@ -214,7 +214,7 @@ The OS should not run the process until the event occurs.
 ### Voluntary exit
 
 - Normal exit: `return 0;` in `main` or `exit(0);`
-- Error exit: `return x;` in `main`, `abort();` or `exit(x);` where x &ne; 0
+- Error exit: `return x;` in `main`, `abort();` or `exit(x);` where x ≠ 0
 
 ### Involuntary exit
 
@@ -229,12 +229,12 @@ The OS should not run the process until the event occurs.
 If a process terminated voluntarily, it returns an **exit status** in the form of an integer.
 In Linux, regardless of this integers size, only the lowest 8 bits are significant.
 
-A process&rsquo; resources cannot be completely freed after it terminates.
-A so&ndash;called **Zombie process** or **process stub**  remains until the exit status is collected (via `waitpid`).
+A process’ resources cannot be completely freed after it terminates.
+A so-called **Zombie process** or **process stub**  remains until the exit status is collected (via `waitpid`).
 Only then can the PID and the allocated resources be freed.
 
 ### Orphans
 
 Children that keep running after their parent process dies are called **orphans**.
-Generally, the init process &ldquo;adopts&rdquo; orphans &mdash; they keep running.
+Generally, the init process “adopts” orphans — they keep running.
 Some operating systems perform a **cascading termination**, i.e. when a process terminates, all of its children terminate as well.
