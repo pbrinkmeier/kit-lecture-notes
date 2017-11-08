@@ -8,7 +8,7 @@
 
 - [Tutoria](#tutoria)
 - [Exams](#exams)
-- [Contents](#contents)
+- [Contents of the lecture](#contents-of-the-lecture)
 - [Recommended literature](#recommended-literature)
 - [Introduction](#introduction)
     - [What is an operating system?](#what-is-an-operating-system)
@@ -36,7 +36,7 @@ However, attendance to the Übungsscheinklausur is mandatory.
 
 In the week before the Hauptklausur there will be **additional Tutoria** ("Zusatztutorien") which will be announced in the lecture.
 
-## Contents
+## Contents of the lecture
 
 - Processes and threads
 - Scheduling
