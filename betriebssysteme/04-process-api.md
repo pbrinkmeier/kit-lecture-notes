@@ -40,7 +40,7 @@ The following list is a set of (simplified) assembler instructions you should kn
 #### Stack
 
 The **stack pointer** (SP) holds the address of the top of the stack while the stack grows _downwards_.
-The SP points to the last allocated word (&ldquo;pre-decremented stack pointer&rdquo;).
+The SP points to the last allocated word (&ldquo;pre&ndash;decremented stack pointer&rdquo;).
 
 - **push**: makes room for values on the stack by decrementing the SP and the inserting new element
 - **pop**: cleans up values from the stack by incrementing the SP (removed data is not overwritten)
@@ -196,3 +196,33 @@ The OS should not run the process until the event occurs.
 2. Scheduler activates another process
 3. Scheduler activates this process
 4. Event has occurred
+
+## Process Termination
+
+### Voluntary exit
+
+- Normal exit: `return 0;` in `main` or `exit(0);`
+- Error exit: `return x;` in `main`, `abort();` or `exit(x);` where x &ne; 0
+
+### Involuntary exit
+
+- OS kills process (**fatal error**), e.g.:
+    - After CPU exception
+    - Process exceeds alloted resources
+- Another process sends a signal to kill the process
+    - Only possible with sufficient privileges (parent process or running as root)
+
+### Exit Status
+
+If a process terminated voluntarily, it returns an **exit status** in the form of an integer.
+In Linux, regardless of this integers size, only the lowest 8 bits are significant.
+
+A process&rsquo; resources cannot be completely freed after it terminates.
+A so&ndash;called **Zombie process** or **process stub**  remains until the exit status is collected (via `waitpid`).
+Only then can the PID and the allocated resources be freed.
+
+### Orphans
+
+Children that keep running after their parent process dies are called **orphans**.
+Generally, the init process &ldquo;adopts&rdquo; orphans &mdash; they keep running.
+Some operating systems perform a **cascading termination**, i.e. when a process terminates, all of its children terminate as well.
