@@ -58,14 +58,15 @@ Mitarbeit ist natürlich willkommen, aber bitte bleibt mit dem Rest der Mitschri
 
 Jeder Satz kommt in seine eigene Zeile.
 Dadurch sind die Diffs schöner und man kann sie besser bearbeiten.
-Mehrere Leerzeichen/Zeilenumbrüche fallen in HTML zu einem 
-Leerzeichen zusammen.
+Mehrere Leerzeichen/Zeilenumbrüche fallen in HTML zu einem Leerzeichen zusammen.
 
 ```
 Jeder Satz kommt in seine eigene Zeile.
 Dadurch sind die Diffs schöner und man kann sie besser bearbeiten.
 Mehrere Leerzeichen/Zeilenumbrüche fallen in HTML zu einem Leerzeichen zusammen.
 ```
+
+- Will man einen Zeilenumbruch durch Markdown erzwingen, beendet man die vorhergehende Zeile mit zwei Leerzeichen
 
 ### Listen
 
@@ -114,7 +115,7 @@ Betonung wird durch *Kursivschrift* erreicht.
 
 Zum rauskopieren:
 
-# `„ “ ” — ’`
+# `„ “ ” — ’ …`
 
 # ≠ ≤ ≥
 
