@@ -15,7 +15,7 @@
     - [Transistor (1947)](#transistor-1947)
     - [Integrierte Schaltkreise (ca. 1958)](#integrierte-schaltkreise-ca-1958)
 
-## Ein Blick zurück...
+## Ein Blick zurück…
 
 Eigenschaften der ersten Computer
 
