@@ -181,14 +181,74 @@ CPU bound jobs hold the CPU until end of execution of I/O events, that means poo
 
 ### Round Robin (RR) Scheduling
 
+Each process runs for a small unit of CPU time.
+The length of those **time quantums**/**slice lengths** are usually around 10 to 100 milliseconds. 
+Processes that have not blocked by the end of their quantum are interrupted and inserted at the end of the run queue.
+After a process blocks or has been interrupted, the first process from the run queue is run.
+
+The time slice each process gets needs to create a balance between interactivity and overhead.
+Interrupting and dispatching new processes takes time.
+
+- If the time slice is much larger than dispatch time, the overhead is acceptable
+- If the time slice is about the same as the dispatch time, about 50% of CPU time is wasted for switching between processes
+
+**TODO**: Example (p24/33)
+
 ### Virtual Round Robin (RR) Scheduling
+
+Round robin is unfair for I/O bound jobs because often block before using up the time quantum.
+CPU-bound jobs can use up their entire slice &mdash; using the same number of slices, CPU-bound jobs get more CPU time.
+
+**Virtual round robin** puts jobs that didn&rsquo;t use up their time slice into an additional queue.
+Time that hasnt been used gets stored with the processes.
+
+**TODO**: weiter ausführen
 
 ### (Strict) Priority Scheduling
 
+Each process is stored in a queue, which in turn has a priority assigned to it.
+CPU processes with the highest priority get the biggest time share.
+
+Since that means some processes could never run if there are more important ones (**starvation**), you can using **aging** (increase priority of old processes in lower priorities).
+
 ### Multi-Level Feedback Queue (MLFB) Scheduling
+
+Higher prio for I/O bound jobs.
+Lower prio, but more time for CPU bound jobs.
+
+Different queues with different priorities *and* different time slice lengths.
+The lower the priority, the higher the time slice (example: 2^n where n is the priority).
+Promotion to a higher prio when a process doesnt use up its time slice repeatedly.
+Demotion to a lower prio when a process repeatedly completely uses its time slice.
 
 ### Priority Donation
 
+Some times, a process A may wait for a process B.
+If A now has a lower prio than B, B effectively has lower priority too.
+
+A solution to this problem may be the so-called **priority donation**/**priority inheritance**.
+It gives process A the same priority as process B as long as B waits for A.
+**TODO**: problem of transitivity
+
 ### Lottery Scheduling
 
+Issue lottery **tickets** to processes.
+Higher prio gets more tickets.
+Amount of tickets influences proportion of CPU time for each process.
+
+**TODO**: siehe folie (p30/33)
+
+Processes may transfer tickets to other processes while waiting for them.
+**Ticket donation** is usually better than priority donation.
+
 ### Real-Time Scheduling
+
+Is not relevant for this lecture.
+
+**TODO**: Starting point (p31/33)
+
+(Earliest deadline first).
+
+## Linux scheduler
+
+**TODO**: find slide
