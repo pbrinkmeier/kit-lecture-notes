@@ -1,163 +1,173 @@
 [zurück](README.md)
 
-# 06: Dispatching, Scheduling, Scheduling Policies
+# 06: Dispatching, scheduling, scheduling policies
 
 > 07.11.2017
 
-## Table of Contents
+## Table of contents
 
 **TODO**
 
 ## Dispatching
 
-The machine has `K` jobs ready to run, but only `N` CPUs with `K > N > 1`.
+The machine has K jobs ready to run, but only N CPUs where K > N > 1.
 
-_Scheduling problem:_ Which jobs should be assigned to which CPUs?
+**Scheduling problem**: Which jobs should be assigned to which CPUs?
 
-### Which Jobs Should Be Assigned to Which CPU(s)?
+### Which jobs should be assigned to which CPU(s)?
 
-The CPU _scheduler_ selects the next process to run using a specific _policy_.
-
-The _dispatcher_ performs the actual process switch, including:
+The CPU **scheduler** selects the next process to run using a specific **policy**.
+The **dispatcher** performs the actual process switch, including:
 
 - saving and restoring process contexts
 - switching to user mode
 
-### Voluntary Yielding vs Preemption
+### Voluntary yielding vs. preemption
 
 The kernel is responsible for performing the CPU switch:
 
-**Voluntary Yielding:**  
-Due to the fact that the kernel isn't always running, it cannot dispatch a different process unless it is invoked!  
-The kernel can switch at any system call, however using _cooperative multitasking_, the currently running process performs a `yield` system call to ask the kernel to switch to another process.
+#### Voluntary yielding
 
-**Preemption:**  
-The kernel often wants to preempt the currently running process to schedule a different process. This requires the kernel to be invoked in certain time intervals. Usually, _timer interrupts_ are used as a trigger to make scheduling decisions after every "time-slice".
+Due to the fact that the kernel is not always running, it cannot dispatch a different process unless it is invoked.
+The kernel can switch at any system call, however, using **cooperative multitasking**, the currently running process performs a `yield` system call to ask the kernel to switch to another process.
 
-### CPU Switch from Process to Process
+#### Preemption
 
-![](img/06-process-switch.png)
+The kernel often wants to preempt the currently running process to schedule a different process. This requires the kernel to be invoked in certain time intervals. Usually, **timer interrupts** are used as a trigger to make scheduling decisions after every **time slice**.
+
+### CPU switch from process to process, graphically
+
+![Sequence diagram of a process switch](img/06-process-switch.png)
 
 ## Scheduling
 
-### Process State
+### Process state
 
-A process can be in different states:
-- **new:** has been created but never ran
-- **running:** instructions are currently executed
-- **waiting:** waiting for some event to occur
-- **ready:** waiting to be assigned to a CPU
-- **terminated:** finished execution (zombie state)
+A process can have _one_ of several states at once:
 
-![](img/06-process-state.png)
+- **new**: has been created but never ran
+- **running**: instructions are currently executed
+- **waiting**: waiting for some event to occur
+- **ready**: waiting to be assigned to a CPU
+- **terminated**: finished execution (**zombie** state)
 
-### Types of Schedulers
+![Process state diagram](img/06-process-state.png)
 
-**Short-term scheduler:** (_CPU scheduler_)  
+### Types of schedulers
+
+#### Short-term scheduler (CPU scheduler)
+
 - selects next process to be executed and allocates a CPU
 - invoked very frequently (milliseconds), therefore must be fast
 
-**Long-term scheduler:** (_job scheduler_)  
+#### Long-term scheduler (job scheduler)
+
 - selects processes to be added into the ready queue
-- invoked infrequently (seconds, minutes), there can be slow
+- invoked infrequently (seconds, minutes), therefore can be slow
 - controls the degree of multiprogramming
 
-_The lecture will focus on CPU schedulers (short term)._
+This lecture will focus on CPU schedulers.
 
-### Process Scheduling Queues
+### Process scheduling queues
 
-**Job queue:** Set of _all_ processes in the system  
-**Ready queue:** Processes in _ready_ or _waiting_ state  
-**Device queue:** Processes waiting for an I/O device
+- **Job queue**: Set of _all_ processes in the system
+- **Ready queue**: Processes in **ready** or **waiting ** state
+- **Device queue**: Processes waiting for an I/O device
 
 ![](img/06-scheduling-queues.png)
 
-## Scheduling Policies
+## Scheduling policies
 
-Some common scheduling policies for different environments. While all policies try to be as _fair_ as possible to processes and _balance_ all system parts, there are different **goals** for every category:
+We will now take a look at some common scheduling policies for different environments.
+While all policies try to be as **fair** as possible to processes and balance all system parts, there are different goals for each category:
 
-- **Batch Scheduling**
+- **Batch scheduling**
     - still widespread in business applications (payroll, inventory, ...)
-    - non-preemptive algorithms are acceptable (-> less switches -> less overhead)
-    - **Throughput:** # of processes that complete per time unit
-    - **Turnaround Time:** time from submission to completion of a job
-    - **CPU Utilization:** keep the CPU(s) as busy as possible
-- **Interactive Scheduling**
+    - non-preemptive algorithms are acceptable (less switches, less overhead)
+    - **Throughput**: number of processes that complete per time unit
+    - **Turnaround time**: time from submission to completion of a job
+    - **CPU utilization**: keeping the CPU(s) as busy as possible
+- **Interactive scheduling**
     - preemption essential to keep processes from hogging CPU time
-    - **Waiting Time:** time each process waits in ready queue
-    - **Response Time:** Time from request to first response
-- **Real-Time Scheduling**
+    - **Waiting time**: time each process waits in ready queue
+    - **Response time**: time from request to first response
+- **Real-time scheduling**
     - garantueed completion of jobs within time constraints
     - preemption is not always needed
-    - **Meeting Deadlines:** finish jobs in time
-    - **Predictability:** minimize jitter
+    - **Meeting deadlines**: finish jobs in time
+    - **Predictability**: minimize jitter
 
-### First-Come, First-Served (FCFS) Scheduling
+### First-come, first-served (FCFS) scheduling
 
-Suppose 3 processes arrived in order: P1, P2, P3
+Suppose 3 processes P<sub>1</sub>, P<sub>2</sub> and P<sub>3</sub> arrived in the following order:
 
 ![](img/06-fcfs-table-1.png)
 
-_Gantt_ chart:  
+Using FCFS scheduling, they would just be executed in this order.
+Corresponding **Gantt chart**:
+
 ![](img/06-fcfs-gantt-1.png)
 
-Turnaround times: `P1 = 24, P2 = 27, P3 = 30`  
-Average: `(24 + 27 + 30) / 3 = 27` -> **Can we do better?**
+Turnaround times: P<sub>1</sub> = 24, P<sub>2</sub> = 27, P<sub>3</sub> = 30  
+Average: (24 + 27 + 30) ÷ 3 = 27
 
----
+Can we do better?
+Now suppose the 3 processes arrived in order P<sub>2</sub>, P<sub>3</sub>, P<sub>1</sub>.
+The Gantt chart would look like this:
 
-Now suppose the 3 processes arrived in order P2, P3, P1
-
-![](img/06-fcfs-table-2.png)
-
-_Gantt_ chart:  
 ![](img/06-fcfs-gantt-2.png)
 
-Turnaround times: `P1 = 30, P2 = 3, P3 = 6`  
-Average: `(30 + 3 + 6) / 3 = 13` -> **Much better than previously!**
+Turnaround times: P<sub>1</sub> = 30, P<sub>2</sub> = 3, P<sub>3</sub> = 6  
+Average: (30 + 3 + 6) ÷ 3 = 13, much better than before.
 
-Good scheduling can ~~save lives~~ reduce turnaround time!
+Good scheduling can _drastically_ reduce turnaround time.
 
-### Shortest-Job-First (SJF) Scheduling
+### Shortest-job-first (SJF) scheduling
 
-The FCFS (First-Come First-Served Scheduling) is prone to the _Convoy effect_. All short (_"fast"_) jobs have to wait for long (_"slow"_) jobs that arrived previously.  
-**Idea:** Run shortest job first.
+FCFS scheduling is prone to the **convoy effect**.
+All short (fast) jobs have to wait for long (slow) jobs that arrived previously.
 
-SJF has optimal average turnaround, waiting and response times, however the scheduler cannot know job length in advance.  
-**Solution:** Predict length of next CPU burst for each process, then schedule the process with the shortest burst next.
+Idea: just run the shortest job first.
 
-#### Estimating the Length of Next CPU Burst
+SJF has optimal average turnaround, waiting and response times, however the scheduler cannot know job length in advance.
+The scheduler tries to predict the length of next CPU burst for each process, then schedules the process with the shortest burst next.
 
-Idea: use exponential averaging based on previous CPU bursts  
-`t(n)` = actual length of n-th CPU burst  
-`τ(n+1)` = predicted value for the next CPU burst  
-Define `τ(n+1) = α*t(n) + (1 - α)*τ(n)` with `0 <= α <= 1`
+#### Estimating the length of next CPU burst
 
-Example with `α = 0.5`:  
-![](img/06-cpu-bursts.png)
+Idea: use exponential averaging based on previous CPU bursts.
 
-#### CPU vs. I/O Burst Cycles
+t(n) = actual length of n-th CPU burst  
+τ(n + 1) = predicted value for the next CPU burst  
+τ(n + 1) = α * t(n) + (1 - α) * τ(n) where 0 <= α <= 1.
+
+Example where α = 0.5:
+
+![Example graph showing exponential averaging for estimating burst times](img/06-cpu-bursts.png)
+
+#### CPU vs. I/O burst cycles
 
 Why do CPU bursts exist? Because the CPU bursts, then waits for I/O.
 
 ![](img/06-bursts-io-cpu.png)
+
 ![](img/06-bursts-histogram.png)
 
-#### Process Behavior: Boundedness
+#### Boundedness
 
 Processes can be characterized as either:
-- **CPU-bound processes:** more time spent doing computations (very long but few CPU bursts)
-or
-- **I/O-bound processes:** more time spent doing I/O (many short CPU bursts)
+
+- **CPU-bound**: more time spent doing computations (very long but few CPU bursts)
+- **I/O-bound**: more time spent doing I/O (many short CPU bursts)
 
 ### Preemptive Shortest-Job-First (PSJF) Scheduling
 
-SJF (_shortest-job-first_) scheduling optimizes waiting and response time, but what about throughput?  
-CPU bound jobs hold the CPU until end of execution of I/O events, that means poor I/O utilization.
+SJF scheduling optimizes waiting and response time, but what about throughput?
+CPU-bound jobs block the CPU until end of execution of I/O events, that means poor I/O utilization.
 
-**Idea:** use SJF (_shortest-job-first_) scheduling, but periodically preempt to make a new scheduling decision (choose job with shortest remaining time).
+Idea: use SJF scheduling, but periodically preempt to make a new scheduling decision (choose job with shortest remaining time).
 
-![](img/06-psjf-table.png)  
+![](img/06-psjf-table.png)
+
 ![](img/06-psjf-gantt.png)
 
 ### Round Robin (RR) Scheduling
