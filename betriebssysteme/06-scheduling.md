@@ -6,28 +6,7 @@
 
 ## Table of Contents
 
-- [Dispatching](#dispatching)
-    - [Which Jobs Should Be Assigned to Which CPU(s)?](#which-jobs-should-be-assigned-to-which-cpus)
-    - [Voluntary Yielding vs Preemption](#voluntary-yielding-vs-preemption)
-    - [CPU Switch from Process to Process](#cpu-switch-from-process-to-process)
-- [Scheduling](#scheduling)
-    - [Process State](#process-state)
-    - [Types of Schedulers](#types-of-schedulers)
-    - [Process Scheduling Queues](#process-scheduling-queues)
-- [Scheduling Policies](#scheduling-policies)
-    - [First-Come, First-Served (FCFS) Scheduling](#first-come-first-served-fcfs-scheduling)
-    - [Shortest-Job-First (SJF) Scheduling](#shortest-job-first-sjf-scheduling)
-        - [Estimating the Length of Next CPU Burst](#estimating-the-length-of-next-cpu-burst)
-        - [CPU vs. I/O Burst Cycles](#cpu-vs-io-burst-cycles)
-        - [Process Behavior: Boundedness](#process-behavior-boundedness)
-    - [Preemptive Shortest-Job-First (PSJF) Scheduling](#preemptive-shortest-job-first-psjf-scheduling)
-    - [Round Robin (RR) Scheduling](#round-robin-rr-scheduling)
-    - [Virtual Round Robin (RR) Scheduling](#virtual-round-robin-rr-scheduling)
-    - [(Strict) Priority Scheduling](#strict-priority-scheduling)
-    - [Multi-Level Feedback Queue (MLFB) Scheduling](#multi-level-feedback-queue-mlfb-scheduling)
-    - [Priority Donation](#priority-donation)
-    - [Lottery Scheduling](#lottery-scheduling)
-    - [Real-Time Scheduling](#real-time-scheduling)
+**TODO**
 
 ## Dispatching
 
@@ -39,7 +18,8 @@ _Scheduling problem:_ Which jobs should be assigned to which CPUs?
 
 The CPU _scheduler_ selects the next process to run using a specific _policy_.
 
-The _dispatcher_ performs the actual process switch, including
+The _dispatcher_ performs the actual process switch, including:
+
 - saving and restoring process contexts
 - switching to user mode
 
@@ -95,6 +75,7 @@ _The lecture will focus on CPU schedulers (short term)._
 ## Scheduling Policies
 
 Some common scheduling policies for different environments. While all policies try to be as _fair_ as possible to processes and _balance_ all system parts, there are different **goals** for every category:
+
 - **Batch Scheduling**
     - still widespread in business applications (payroll, inventory, ...)
     - non-preemptive algorithms are acceptable (-> less switches -> less overhead)
@@ -183,72 +164,130 @@ CPU bound jobs hold the CPU until end of execution of I/O events, that means poo
 
 Each process runs for a small unit of CPU time.
 The length of those **time quantums**/**slice lengths** are usually around 10 to 100 milliseconds. 
-Processes that have not blocked by the end of their quantum are interrupted and inserted at the end of the run queue.
-After a process blocks or has been interrupted, the first process from the run queue is run.
+Processes are interrupted at the end of their time slice and inserted at the end of the run queue.
+After a process has been interrupted, the first process from the run queue is run.
 
-The time slice each process gets needs to create a balance between interactivity and overhead.
-Interrupting and dispatching new processes takes time.
+The time slice each process gets needs to create a balance between interactivity and overhead, since interrupting and dispatching new processes takes additional time.
 
 - If the time slice is much larger than dispatch time, the overhead is acceptable
 - If the time slice is about the same as the dispatch time, about 50% of CPU time is wasted for switching between processes
 
-**TODO**: Example (p24/33)
+Gantt chart for processes P1, P2 and P3 of the lengths 3, 3 and 24:
+
+![Round robin gantt chart](img/06-rr-gantt.png)
+
+Typically, round robin has has a higher average turnaround than SJF, but better response time and a good average waiting time when job lengths vary.
 
 ### Virtual Round Robin (RR) Scheduling
 
-Round robin is unfair for I/O bound jobs because often block before using up the time quantum.
+Round robin is unfair for I/O bound jobs because they often block before using up their time quantum.
 CPU-bound jobs can use up their entire slice &mdash; using the same number of slices, CPU-bound jobs get more CPU time.
-
 **Virtual round robin** puts jobs that didn&rsquo;t use up their time slice into an additional queue.
 Time that hasnt been used gets stored with the processes.
-
-**TODO**: weiter ausführen
+Jobs in the additional queue are assigned a higher priority than normal jobs.
+After they have been run completely, they are put back in the normal queue.
 
 ### (Strict) Priority Scheduling
 
-Each process is stored in a queue, which in turn has a priority assigned to it.
-CPU processes with the highest priority get the biggest time share.
+Each process is assigned an integer priority number.
+For each of those numbers, there is a queue.
+Allocate CPU time via round robin; start at the first queue (highest priority) and only execute jobs of lower priorities if there are no more important jobs (**strict priority scheduling**).
 
-Since that means some processes could never run if there are more important ones (**starvation**), you can using **aging** (increase priority of old processes in lower priorities).
+![Priority queues](img/06-priority-scheduling.png)
+
+This way, it is possible that some processes never run, because they&rsquo;re not important enough (**starvation**).
+To counter this phenomenon, **aging** can be employed, i.e. processes move to a higher priority after waiting a while.
 
 ### Multi-Level Feedback Queue (MLFB) Scheduling
 
-Higher prio for I/O bound jobs.
-Lower prio, but more time for CPU bound jobs.
+In order to get a good trade-off between interactivity and overhead, this policy aims to give I/O-bound jobs a higher priority, but also runs them for smaller time slices, while giving CPU-bound jobs a lower priority, running them for a longer time.
 
-Different queues with different priorities *and* different time slice lengths.
-The lower the priority, the higher the time slice (example: 2^n where n is the priority).
-Promotion to a higher prio when a process doesnt use up its time slice repeatedly.
-Demotion to a lower prio when a process repeatedly completely uses its time slice.
+The approach here is to use different queues that have different priorities *and* different time slices.
+E.g. one might assign the priority 2<sup>n</sup> to each queue where n is the queues priority (lower n means higher priority).
+In order to keep the balance, move processes that do not use up their time slice repeatedly to a higher priority and move those that do use up their slices repeatedly to a lower priority.
 
 ### Priority Donation
 
-Some times, a process A may wait for a process B.
-If A now has a lower prio than B, B effectively has lower priority too.
+Some times, a process B may wait for a process A.
+If A now has a lower priority than B, B effectively has a lower priority too.
 
-A solution to this problem may be the so-called **priority donation**/**priority inheritance**.
-It gives process A the same priority as process B as long as B waits for A.
-**TODO**: problem of transitivity
+A solution to this problem may be the so-called **priority donation**/**priority inheritance**; give process A the same priority as process B as long as B waits for A.
+But what if now processes C and D also wait for B?
+Should priorities be donated transitively?
+The proposed solution is to give A only the highest priority of B, C and D.
 
 ### Lottery Scheduling
 
-Issue lottery **tickets** to processes.
-Higher prio gets more tickets.
-Amount of tickets influences proportion of CPU time for each process.
+Issue a total number n of **lottery tickets** to processes.
+The higher the priority of a process is, the more tickets it gets.
 
-**TODO**: siehe folie (p30/33)
+Now for each time slice, generate a random number 0 ≤ r < n.
+Traverse the list of all processes, and give the slice to the first process where sum of ticket numbers is bigger than r.
+
+![Lottery scheduling example](img/06-lottery-example.png)
 
 Processes may transfer tickets to other processes while waiting for them.
-**Ticket donation** is usually better than priority donation.
-
-### Real-Time Scheduling
-
-Is not relevant for this lecture.
-
-**TODO**: Starting point (p31/33)
-
-(Earliest deadline first).
+**Ticket donation** usually works better than priority donation.
 
 ## Linux scheduler
 
-**TODO**: find slide
+The Linux scheduler aims to be “one scheduler to rule them all”.
+Its goals are:
+
+- Fairness
+- Low task response time for I/O-bound (interactive) processes
+- High throughput for CPU-bound tasks
+- Low overhead
+- Time slice size based on priority
+- Suitability for multiprocessors 
+
+### O(1) scheduler
+
+Until 2007 the Linux kernel used a so-called O(1) scheduler.
+It completed scheduling tasks in constant time complexity.
+It featured:
+
+- 140 different priorities
+    - 0 through 99 for realtime tasks
+    - 100 through 140 for user tasks (default class 120, niceness ranging from -20 to 19)
+- Two run-queue entries per priority per CPU
+    - Linked list of active processes
+    - Linked list of expired processes
+- Bitmap (140 bit) for efficiently finding an empty priority
+
+#### How the O(1) scheduler works
+
+When scheduling a new process and an empty priority has been found, run the first process from the list of active processes.
+After its time slice has expired, remove it from the active list and add it to the expired list.
+If the active list is empty, replace it by the expired list and replace the expired list by an empty list.
+
+After a process becomes runnable, it is added to the active list of the chosen priority and the corresponding bit in the priority bitmask is set (marks the priority as non-empty).
+
+After a process becomes not runnable, it is removed from the runqueue of is priority and the corresponding bit is cleared if there are no other processes in the same priority.
+
+#### Problems of the O(1) scheduler
+
+Some processes have a static priority (can be set by `nice`) from -20 to 19, but others have their priority assigned dynamically.
+CPU-bound processes should get a penalty while I/O-bound processes should be rewarded.
+
+The main issue with the O(1) scheduler was the use of complex heuristics to determine the penalty/reward for processes.
+
+### Completely fair scheduler
+
+Since 2007, the Linux kernel provides multiple scheduling classes with their own scheduling policies.
+Scheduling classes implement a common API:
+
+- Enqeue task
+- Dequeue task
+- Pick next task
+
+#### Scheduling classes and policies
+
+- Stop (no policies)
+- Deadline (SCHED_DEADLINE)
+- Realtime (SCHED_FIFO, SCHED_RR)
+- Completely fair (SCHED_NORMAL, SCHED_BATCH, SCHED_IDLE)
+- Idle (no policies)
+
+#### Stop
+
