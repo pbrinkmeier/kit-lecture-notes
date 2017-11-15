@@ -2,7 +2,7 @@
 
 # 06: Dispatching, scheduling, scheduling policies
 
-> 07.11.2017
+> 07.11.2017, 13.11.2017
 
 ## Table of contents
 
