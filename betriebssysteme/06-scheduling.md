@@ -163,7 +163,7 @@ CPU bound jobs hold the CPU until end of execution of I/O events, that means poo
 ### Round Robin (RR) Scheduling
 
 Each process runs for a small unit of CPU time.
-The length of those **time quantums**/**slice lengths** are usually around 10 to 100 milliseconds. 
+The length of those **time quantums**/**slice lengths** are usually around 10 to 100 milliseconds.
 Processes are interrupted at the end of their time slice and inserted at the end of the run queue.
 After a process has been interrupted, the first process from the run queue is run.
 
@@ -181,13 +181,13 @@ Typically, round robin has has a higher average turnaround than SJF, but better 
 ### Virtual Round Robin (RR) Scheduling
 
 Round robin is unfair for I/O bound jobs because they often block before using up their time quantum.
-CPU-bound jobs can use up their entire slice &mdash; using the same number of slices, CPU-bound jobs get more CPU time.
-**Virtual round robin** puts jobs that didn&rsquo;t use up their time slice into an additional queue.
+CPU-bound jobs can use up their entire slice — using the same number of slices, CPU-bound jobs get more CPU time.
+**Virtual round robin** puts jobs that did not use up their time slice into an additional queue.
 Time that hasnt been used gets stored with the processes.
 Jobs in the additional queue are assigned a higher priority than normal jobs.
 After they have been run completely, they are put back in the normal queue.
 
-### (Strict) Priority Scheduling
+### (Strict) priority scheduling
 
 Each process is assigned an integer priority number.
 For each of those numbers, there is a queue.
@@ -195,10 +195,10 @@ Allocate CPU time via round robin; start at the first queue (highest priority) a
 
 ![Priority queues](img/06-priority-scheduling.png)
 
-This way, it is possible that some processes never run, because they&rsquo;re not important enough (**starvation**).
+This way, it is possible that some processes never run, because their priority is too low (**starvation**).
 To counter this phenomenon, **aging** can be employed, i.e. processes move to a higher priority after waiting a while.
 
-### Multi-Level Feedback Queue (MLFB) Scheduling
+### Multi-level feedback queue (MLFB) scheduling
 
 In order to get a good trade-off between interactivity and overhead, this policy aims to give I/O-bound jobs a higher priority, but also runs them for smaller time slices, while giving CPU-bound jobs a lower priority, running them for a longer time.
 
@@ -206,7 +206,7 @@ The approach here is to use different queues that have different priorities *and
 E.g. one might assign the priority 2<sup>n</sup> to each queue where n is the queues priority (lower n means higher priority).
 In order to keep the balance, move processes that do not use up their time slice repeatedly to a higher priority and move those that do use up their slices repeatedly to a lower priority.
 
-### Priority Donation
+#### Priority donation
 
 Some times, a process B may wait for a process A.
 If A now has a lower priority than B, B effectively has a lower priority too.
@@ -216,7 +216,7 @@ But what if now processes C and D also wait for B?
 Should priorities be donated transitively?
 The proposed solution is to give A only the highest priority of B, C and D.
 
-### Lottery Scheduling
+### Lottery scheduling
 
 Issue a total number n of **lottery tickets** to processes.
 The higher the priority of a process is, the more tickets it gets.
@@ -231,7 +231,7 @@ Processes may transfer tickets to other processes while waiting for them.
 
 ## Linux scheduler
 
-The Linux scheduler aims to be “one scheduler to rule them all”.
+The Linux scheduler aims to be “one scheduler to rule them all”, since Linux is used on a lot of different platforms — servers, desktop PCs, notebooks, phones, embedded systems etc.
 Its goals are:
 
 - Fairness
@@ -281,7 +281,7 @@ Scheduling classes implement a common API:
 - Dequeue task
 - Pick next task
 
-#### Scheduling classes and policies
+There are five scheduling classes (scheduling policies in parentheses):
 
 - Stop (no policies)
 - Deadline (SCHED_DEADLINE)
@@ -289,5 +289,55 @@ Scheduling classes implement a common API:
 - Completely fair (SCHED_NORMAL, SCHED_BATCH, SCHED_IDLE)
 - Idle (no policies)
 
-#### Stop
+#### Stop class
 
+The stop class has the highest priority and is only used when multiple CPUs (cores) exist.
+It is used for moving jobs between CPUs, CPU hotplugging and the like.
+There is usually only one stop job per CPU.
+
+#### Deadline class
+
+Deadline jobs have the highest priority after stop jobs.
+They are based of **earliest deadline first** scheduling.
+That means:
+
+- Tasks can declare their required runtime
+- They can run for an assigned time budget but will be suspended as soon as that budget is used
+
+They can be used for period realtime tasks — i.e. tasks that may be buffered, for example video encoding or decoding.
+
+#### Realtime class
+
+Realtime jobs are **POSIX real-time tasks**.
+They are assigned a priority ranging from 0 to 99 and there are two possible policies; SCHED_FIFO and SCHED_RR (round robin with a default time slice of 100 milliseconds).
+To run a realtime job on a Linux machine, execute the following (requires root privileges):
+
+```
+chrt --rr <priority> <task>
+```
+
+#### CFS class
+
+CFS stands for **completely fair scheduler**.
+It features the scheduling policies SCHED_NORMAL for normal Unix tasks, SCHED_BATCH for non-interactive batch jobs and SCHED_IDLE for low priority tasks.
+It tracks the virtual runtime (**vruntime**, time spent on CPU) of each task.
+The priority of a task defines its weight in the vruntime calculation; the higher a tasks weight, the slower its vruntime increases.
+The task with the shortest vruntime value runs first.
+
+CFS uses a self-balancing red-black tree containing all tasks internally, indexed by the jobs vruntime.
+It may be described as representing a timeline of future process executions.
+IO-bound tasks (low vruntime) get a higher priority in this model, CPU-bound jobs do not get more CPU time.
+
+#### Idle class
+
+Idle jobs are of the lowest scheduling priority.
+Each CPU has exaclty one idle thread that only runs when nothing else is runnable.
+It may take the CPU to a lower power state in order to save energy.
+
+### SMP scheduling in the Linux kernel
+
+Each core gets their own runqueue.
+Runqueues are not synchronized across cores for efficiency reasons.
+This means that some cores may be idle although others have jobs waiting.
+Jobs are periodically migrated to cores with empty queues.
+To avoid race conditions, runqueues need to be locked.
