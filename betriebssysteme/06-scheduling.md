@@ -173,7 +173,7 @@ Idea: use exponential averaging based on previous CPU bursts.
 
 t(n) = actual length of n-th CPU burst  
 τ(n + 1) = predicted value for the next CPU burst  
-τ(n + 1) = α * t(n) + (1 - α) * τ(n) where 0 <= α <= 1.
+τ(n + 1) = α * t(n) + (1 - α) * τ(n) where 0 ≤ α ≤ 1.
 
 Example where α = 0.5:
 
