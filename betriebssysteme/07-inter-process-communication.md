@@ -296,9 +296,9 @@ Most modern CPUs provide atomic _spinlock_ instructions with such semantics:
 - load-link/store-conditional (LL/SC) (e.g. ARM, PowerPC, MIPS)
 
 Is the critical section problem solved now?  
-[x] **Mutual exclusion**  
-[x] **Progress**  
-[ ] **Bounded waiting**
+- [x] **Mutual exclusion**
+- [x] **Progress**
+- [ ] **Bounded waiting**
 
 #### Spinlock limitations
 
@@ -336,9 +336,9 @@ Each semaphore is associated with a wake-up queue:
 - **strong semaphores** wake up threads strictly in the order in which they started waiting
 
 Is the critical section problem solved now?  
-[x] **Mutual exclusion**  
-[x] **Progress**  
-[x] **Bounded waiting**
+- [x] **Mutual exclusion**
+- [x] **Progress**
+- [x] **Bounded waiting**
 
 Every `enter_critical_section()` and `leave_critical_section()` is a syscall now which are way slower than function calls. Can we do better?
 
