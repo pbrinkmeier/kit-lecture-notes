@@ -18,6 +18,17 @@
         - [Sequential memory consistency](#sequential-memory-consistency)
         - [Memory consistency model](#memory-consistency-model)
         - [x86 memory consistency](#x86-memory-consistency)
+- [Synchronization](#synchronization)
+    - [Race conditions](#race-conditions)
+    - [Critical section](#critical-section)
+    - [Busy waiting](#busy-waiting)
+        - [Disabling interrupts](#disabling-interrupts)
+        - [Lock variables](#lock-variables)
+        - [Atomic operations](#atomic-operations)
+        - [Spinlock limitations](#spinlock-limitations)
+    - [Semaphore](#semaphore)
+        - [Implementation considerations](#implementation-considerations)
+        - [Fast user space mutex (futex)](#fast-user-space-mutex-futex)
 
 ## Inter Process Communication (IPC)
 
@@ -148,3 +159,199 @@ Special `fence` instructions prevent re-ordering:
 - `lfence` can't be re-ordered with reads
 - `sfence` can't be re-ordered with writes
 - `mfence` can't be re-ordered with reads or writes
+
+## Synchronization
+
+### Race conditions
+
+Assume the following two code fragments running in two different threads:
+
+Thread 1: `count++;`  
+Thread 2: `count--;`
+
+After both threads finish their execution, `count` should still have the same value as before, right? What could possibly go wrong?
+
+Thread 1 instructions:
+```assembly
+mov A count
+add A 1
+mov count A
+```
+
+Thread 2 instructions:
+```assembly
+mov A count
+sub A 1
+mov count A
+```
+
+Possible execution order:
+```assembly
+mov A count
+sub A 1
+mov A count
+add A 1
+mov count A
+mov count A
+```
+
+Both threads have private registers, so `A` isn't a problem here. However `count` is now `1` instead of the expected `0`. This is what we call a **race condition**.
+
+x86 allows the single instruction `add count 1`, however the same problem still exists. Only so called _interlocked operations_ will save the day, but they are more expensive than regular operations and your compiler will not generate them on its own when using `count++`.
+
+The idea: place `count++` and `count--` inside of a critical section `cs`:  
+Thread 1
+```c
+enter_critical_section(&cs);
+count++;
+leave_critical_section(&cs);
+```
+
+Thread 2
+```c
+enter_critical_section(&cs);
+count--;
+leave_critical_section(&cs);
+```
+
+### Critical section
+
+We want our _critical section_ to support:
+
+- **Mutual exclusion**: only one thread is allowed to be in the critical section at any time
+- **Progress**: No thread outside of the CS is allowed to block other threads from getting inside the CS
+- **Bounded waiting**: once a thread starts trying to enter the CS, there is a bound on the number of times other threads get in
+
+### Busy waiting
+
+#### Disabling interrupts
+
+The kernel only switches threads on interrupts (usually on _timer interrupts_), therefore we could use a per-thread “do not interrupt” (DNI) bit to prevent interrupts when in a critical section.
+
+Implementation on a _single-core system_ is easy:
+- `enter_critical_section()` sets the DNI bit,
+- `leave_critical_section()` clears the DNI bit
+
+When DNI is set, interrupts never happen and therefore the scheduler is never called.
+
+**Pro**:
+- easy and convenient in the kernel
+
+**Contra**:
+- only works on single-core machines, disabling interrupts on one CPU doesn't affect other CPUs
+- we don't really want to give users power to turn off interrupts, what if they are never turned on again?
+
+#### Lock variables
+
+Instead of disabling interrupts, let's use a global variable `lock`:
+- only enter critical section if `lock` is 0, set it to 1 then entering
+- wait for lock to become 0 if wanted to enter critical section (called _busy waiting_)
+
+```c
+void enter_critical_section(volatile bool *lock)
+{
+    while (*lock != 0)
+        ; // wait and do nothing
+
+    *lock = 1;
+}
+
+void leave_critical_section(volatile bool *lock)
+{
+    *lock = 0;
+}
+```
+
+Is the critical section problem solved now?  
+**No!** The same problem still exists, because reading and setting `lock` is not atomic!
+
+#### Atomic operations
+
+To make the lock variables approach work, we need a way to read and set the lock variable at the time time.
+
+In x86, `XCHG` can atomically exchange memory content with a register. Lets assume this C interface for `xchg`:  
+`bool xchg(volatile bool *lock, register bool A);`  
+It'll exchange register content with memory content while returning the previous memory content of our lock.
+
+Implementation of our lock using `xchg`, a so called _spinlock_:
+```c
+void enter_critical_section(volatile bool *lock)
+{
+    while (xchg(lock, 1) == 1) // lock = 1 and return old value
+        ;                      // repeat until old value is not 1
+}
+
+void leave_critical_section(volatile bool *lock)
+{
+    *lock = 0;
+}
+```
+
+Most modern CPUs provide atomic _spinlock_ instructions with such semantics:
+- test memory word and set value (TAS) (e.g. LDSTUB on SPARC V9)
+- fetch and add (e.g. XADD on x86)
+- exchange contents of two memory words (SWAP, XCHG)
+- compare and swap (e.g. CAS on SPARC V9 and Motorola 68k)
+- compare and exchange (e.g. CMPXCHG on x86)
+- load-link/store-conditional (LL/SC) (e.g. ARM, PowerPC, MIPS)
+
+Is the critical section problem solved now?  
+[x] **Mutual exclusion**  
+[x] **Progress**  
+[ ] **Bounded waiting**
+
+#### Spinlock limitations
+
+- Spinlocks don't work very well **if the lock is congested**: they are easy and efficient if there is no thread in the CS while another one tries to enter it most of the time. However if the CS is large or many threads try to enter it, spinlocks may not be the best choice because all threads are activly wait spinning.
+- Spinlocks don't work very well **if threads on different cores use the same lock**: the memory address is written at every atomic swap operation, therefore memory is coherent between cores which is very expensive
+- Spinlocks **can behave unexpectedly when processes are scheduled with static priorities** (such as _priority inversion_): if a thread with low priority holds a lock it will never able to release it, because it will never be scheduled
+
+Nevertheless, spinlocks are wildly used, especially in kernels!
+
+As it turns out, _busy waiting_ is a big spinlock limitation. It wastes resources when threads are waiting for locks, it stresses the cache coherence protocol when used across cores and it can cause the priority inversion problem.  
+There is a big room for improvements, e.g. put threads to sleep when waiting for locks and wake them up one at a time when a lock becomes free.
+
+### Semaphore
+
+We'll introduce two syscalls that operate on integer variables which we call _semaphore_ in this context:  
+- `wait(&s)`: if `s > 0`: `s--` and continue, otherwise let caller sleep
+- `signal(&s)`: if no thread waiting: `s++`, otherwise wake up one
+
+`wait` corresponds to `enter_critical_section`, while `signal` corresponds to `leave_critical_secion`. Initialize `s` to the maximum number of threads that may enter the critical section at any given time.  
+A semaphore initialized with 1 is called **binary semaphore**, **mutex semaphore** or just **mutex**. A semaphore with more that one thread allowed in the critical section at a time is called **counting semaphore**.
+
+#### Implementation considerations
+
+`wait` and `signal` need to be carefully synchronized, otherwise using semaphores could result in a _race condition_ between checking and decrementing `s`. Also, _signal loss_ could occur when waiting and waking threads up at the same time:
+
+- consider a thread T1 checking `s`, which is 0
+- before the thread goes to sleep, another thread T2 within the critical section finished
+- T2's `signal` doesn't wake up any threads, as no thread is sleeping
+- after Ts's `signal` call finishes, T1 continues and begins sleeping
+
+Now, one thread less than expected can enter the critical section. If no other thread comes along, T1 will sleep forever.
+
+Each semaphore is associated with a wake-up queue:
+- **weak semaphores** wake up a random waiting thread on `signal`
+- **strong semaphores** wake up threads strictly in the order in which they started waiting
+
+Is the critical section problem solved now?  
+[x] **Mutual exclusion**  
+[x] **Progress**  
+[x] **Bounded waiting**
+
+Every `enter_critical_section()` and `leave_critical_section()` is a syscall now which are way slower than function calls. Can we do better?
+
+#### Fast user space mutex (futex)
+
+- Spinlocks:
+    - Pro: quick when wait-time is short
+    - Contra: waste resources when wait-time is long
+- Semaphores:
+    - Pro: efficient when wait-time is long
+    - Contra: syscall overhead at every operation
+- Idea of Linux' _fast user space mutex (futex)_:
+    - there is a user space and kernel component
+    - try to get into the critical section with a userspace spinlock
+    - if the critical section is busy, use a syscall to put thread to sleep
+    - otherwise, just enter the critical section with the now locked spinlock completely in userspace
