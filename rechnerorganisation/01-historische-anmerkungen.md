@@ -73,7 +73,7 @@ Erbaut von: J. Presper Eckert, John W. Mauchly
 - Erster elektronischer Universalrechner (Röhrentechnologie m. 17.468 Röhren)
 - Programmierung: Verbinden mit Kabeln
 - Operationen: 4 Grundrechenarten u. Quadratwurzel, 10-stellige Dezimalzahlen
-- Abmessungen: 40 parallel arbeitende Komponenten, je 60cm x 270cm x 70cm (BxHxT), ~70 Tonnen Gewicht
+- Abmessungen: 40 parallel arbeitende Komponenten, je 60cm × 270cm × 70cm (B×H×T), ~70 Tonnen Gewicht
 
 ## Entwicklung der Rechnertechnologie
 

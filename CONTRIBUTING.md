@@ -119,6 +119,10 @@ Zum rauskopieren:
 
 # ≠ ≤ ≥
 
+# `+ − ÷ ×`
+
+Für mathematische Ausdrücke immer `Code-Tags` nutzen.
+
 #### Anführungszeichen
 
 Falsch:
@@ -152,3 +156,9 @@ Falsch:
 Richtig:
 
 ```Der Stack — nach unten wachsend — ist nicht unendlich groß.```
+
+#### Kommandozeilen-Befehle
+
+Befehle für die Kommandozeile werden mit Code-Tags dargestellt. Zusätzlich steht am Anfang jeder Zeile ein $ (Dollar-Symbol).
+
+`$ chrt --rr <priority> <task>`
