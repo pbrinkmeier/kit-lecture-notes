@@ -80,7 +80,6 @@ Some basic Pthread functions are:
 
 ### Mulithreaded programming is hard
 
-*Brace yourself*.
 It doesn’t matter whether you’re using multiple processes, mulitple threads or both; you will need to take care of a lot more things compared to singlethreaded programming:
 
 - Distributing and balancing activities
@@ -94,7 +93,7 @@ A rule of thumb: processes share less data than threads, so there is less that c
 Not all state should be shared across threads.
 E.g. `errno` contains the return value of the last syscall, but is thread-global.
 
-A lot of library code is not **threadsafe**.
+A lot of library code is not **thread safe**.
 When working with multiple threads, you should generally use `_r` variants of functions, if available (e.g. `strtok_r`, `rand_r`).
 
 ## Data structures

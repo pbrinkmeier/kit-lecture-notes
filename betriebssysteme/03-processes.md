@@ -133,7 +133,7 @@ You may want to load plugins (e.g. kernel modules) at runtime, this can be done 
 ```c
 int dyn_square(int a)
 {
-        return a * a;
+    return a * a;
 }
 ```
 

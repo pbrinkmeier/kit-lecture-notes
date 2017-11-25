@@ -46,10 +46,6 @@ In the week before the Hauptklausur there will be **additional Tutoria** ("Zusat
 - File systems
 - Input/Output system
 
-## Recommended literature
-
-**TBD**
-
 ## Introduction
 
 ### What is an operating system?
@@ -102,7 +98,7 @@ In the week before the Hauptklausur there will be **additional Tutoria** ("Zusat
 - Contains data (which program instructions are a part of)
 - CPUs come with a memory controller
 - Usually, fetching instructions from RAM is much slower than their execution on the CPU
-    - Caching can be used effectively because instructions are in a sequence most of the time (**TBD**: spatial blabla)
+    - Caching can be used effectively because instructions are in a sequence most of the time
 
 **TBD**: access times images
 
@@ -123,14 +119,14 @@ Typically, caches are managed in so-called **cache lines** of 64 Bytes.
 
 Types of cache misses:
 
-    - **Compulsory**: Data has never been requested before.
-    - **Capacity**: Cache does not have enough space for the "Working Set".
-    - **Conflict**: Cache management failed.
+- **Compulsory**: Data has never been requested before.
+- **Capacity**: Cache does not have enough space for the "Working Set".
+- **Conflict**: Cache management failed.
 
 #### Interplay of CPU and devices
 
 - CPU sends data to device controller
-- After it is done, the device notifies APIC (**TBD**: what is this)
+- After it is done, the device notifies APIC (_advanced programmable interrupt controller_)
 - APIC interrupts the CPU
 - Transfer of data from the CPU to the devices:
     - **PMIO** (**P**ort-**M**apped **IO**): data to be transferred is stored in some **registers** on the CPU itself
