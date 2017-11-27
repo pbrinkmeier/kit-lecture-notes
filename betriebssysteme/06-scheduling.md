@@ -6,48 +6,13 @@
 
 ## Table of contents
 
-- [Dispatching](#dispatching)
-    - [Which jobs should be assigned to which CPU(s)?](#which-jobs-should-be-assigned-to-which-cpus)
-    - [Voluntary yielding vs. preemption](#voluntary-yielding-vs-preemption)
-        - [Voluntary yielding](#voluntary-yielding)
-        - [Preemption](#preemption)
-    - [CPU switch from process to process, graphically](#cpu-switch-from-process-to-process-graphically)              
-- [Scheduling](#scheduling)
-    - [Process states](#process-states)
-    - [Types of schedulers](#types-of-schedulers)
-        - [Short-term scheduler (CPU scheduler)](#short-term-scheduler-cpu-scheduler)
-        - [Long-term scheduler (job scheduler)](#long-term-scheduler-job-scheduler)
-    - [Process scheduling queues](#process-scheduling-queues)
-- [Scheduling policies](#scheduling-policies)
-    - [First-come, first-served (FCFS) scheduling](#first-come-first-served-fcfs-scheduling)
-    - [Shortest-job-first (SJF) scheduling](#shortest-job-first-sjf-scheduling)
-        - [Estimating the length of next CPU burst](#estimating-the-length-of-next-cpu-burst)
-        - [CPU vs. I/O burst cycles](#cpu-vs-io-burst-cycles)
-        - [Boundedness](#boundedness)
-    - [Preemptive Shortest-Job-First (PSJF) Scheduling](#preemptive-shortest-job-first-psjf-scheduling)
-    - [Round Robin (RR) Scheduling](#round-robin-rr-scheduling)
-    - [Virtual Round Robin (RR) Scheduling](#virtual-round-robin-rr-scheduling)
-    - [(Strict) priority scheduling](#strict-priority-scheduling)
-    - [Multi-level feedback queue (MLFB) scheduling](#multi-level-feedback-queue-mlfb-scheduling)
-        - [Priority donation](#priority-donation)
-    - [Lottery scheduling](#lottery-scheduling)
-- [Linux scheduler](#linux-scheduler)
-    - [O(1) scheduler](#o1-scheduler)
-        - [How the O(1) scheduler works](#how-the-o1-scheduler-works)
-        - [Problems of the O(1) scheduler](#problems-of-the-o1-scheduler)
-    - [Completely fair scheduler](#completely-fair-scheduler)
-        - [Stop class](#stop-class)
-        - [Deadline class](#deadline-class)
-        - [Realtime class](#realtime-class)
-        - [CFS class](#cfs-class)
-        - [Idle class](#idle-class)
-    - [SMP scheduling in the Linux kernel](#smp-scheduling-in-the-linux-kernel)
+> TODO
 
 ## Dispatching
 
-The machine has K jobs ready to run, but only N CPUs where K > N > 1.
+The machine has `k` jobs ready to run, but only `n` CPUs where `k > n` and `n > 1`.
 
-**Scheduling problem**: Which jobs should be assigned to which CPUs?
+The **scheduling problem** is described by the following question: Which jobs should be assigned to which CPUs?
 
 ### Which jobs should be assigned to which CPU(s)?
 
@@ -134,7 +99,7 @@ While all policies try to be as **fair** as possible to processes and balance al
 
 ### First-come, first-served (FCFS) scheduling
 
-Suppose 3 processes P<sub>1</sub>, P<sub>2</sub> and P<sub>3</sub> arrived in the following order:
+Suppose 3 processes `P1`, `P2` and `P3` arrived in the following order:
 
 ![](img/06-fcfs-table-1.png)
 
@@ -143,17 +108,17 @@ Corresponding **Gantt chart**:
 
 ![](img/06-fcfs-gantt-1.png)
 
-Turnaround times: P<sub>1</sub> = 24, P<sub>2</sub> = 27, P<sub>3</sub> = 30  
-Average: (24 + 27 + 30) ÷ 3 = 27
+Turnaround times: `P1 = 24`, `P2 = 27`, `P3 = 30`.  
+Average: `(24 + 27 + 30) / 3 = 27`.
 
 Can we do better?
-Now suppose the 3 processes arrived in order P<sub>2</sub>, P<sub>3</sub>, P<sub>1</sub>.
+Now suppose the 3 processes arrived in order `P2`, `P3`, `P1`.
 The Gantt chart would look like this:
 
 ![](img/06-fcfs-gantt-2.png)
 
-Turnaround times: P<sub>1</sub> = 30, P<sub>2</sub> = 3, P<sub>3</sub> = 6  
-Average: (30 + 3 + 6) ÷ 3 = 13, much better than before.
+Turnaround times: `P1 = 30`, `P2 = 3`, `P3 = 6`.  
+Average: `(30 + 3 + 6) / 3 = 13`, much better than before.
 
 Good scheduling can _drastically_ reduce turnaround time.
 
@@ -171,17 +136,20 @@ The scheduler tries to predict the length of next CPU burst for each process, th
 
 Idea: use exponential averaging based on previous CPU bursts.
 
-t(n) = actual length of n-th CPU burst  
-τ(n + 1) = predicted value for the next CPU burst  
-τ(n + 1) = α * t(n) + (1 - α) * τ(n) where 0 ≤ α ≤ 1.
+In the following formula, `t(n)` describes the actual length of the n-th CPU burst, `a` is some constant between 0 and 1, and `t'(n + 1)` describes a prediction of length of the next CPU burst.
 
-Example where α = 0.5:
+```
+t'(n + 1) = a * t(n) + (1 - a) * t'(n)
+```
+
+Example where `a = 0.5`:
 
 ![Example graph showing exponential averaging for estimating burst times](img/06-cpu-bursts.png)
 
 #### CPU vs. I/O burst cycles
 
-Why do CPU bursts exist? Because the CPU bursts, then waits for I/O.
+Why do CPU bursts exist?
+Because the CPU bursts, then waits for I/O.
 
 ![](img/06-bursts-io-cpu.png)
 
@@ -194,7 +162,7 @@ Processes can be characterized as either:
 - **CPU-bound**: more time spent doing computations (very long but few CPU bursts)
 - **I/O-bound**: more time spent doing I/O (many short CPU bursts)
 
-### Preemptive Shortest-Job-First (PSJF) Scheduling
+### Preemptive shortest-job-first (PSJF) scheduling
 
 SJF scheduling optimizes waiting and response time, but what about throughput?
 CPU-bound jobs block the CPU until end of execution of I/O events, that means poor I/O utilization.
@@ -205,7 +173,7 @@ Idea: use SJF scheduling, but periodically preempt to make a new scheduling deci
 
 ![](img/06-psjf-gantt.png)
 
-### Round Robin (RR) Scheduling
+### Round robin (RR) scheduling
 
 Each process runs for a small unit of CPU time.
 The length of those **time quantums**/**slice lengths** are usually around 10 to 100 milliseconds.
@@ -217,16 +185,18 @@ The time slice each process gets needs to create a balance between interactivity
 - If the time slice is much larger than dispatch time, the overhead is acceptable
 - If the time slice is about the same as the dispatch time, about 50% of CPU time is wasted for switching between processes
 
-Gantt chart for processes P1, P2 and P3 of the lengths 3, 3 and 24:
+Gantt chart for processes `P1 = 3`, `P2 = 3` and `P3 = 24`.
 
 ![Round robin gantt chart](img/06-rr-gantt.png)
 
 Typically, round robin has has a higher average turnaround than SJF, but better response time and a good average waiting time when job lengths vary.
 
-### Virtual Round Robin (RR) Scheduling
+### Virtual round robin (RR) scheduling
 
 Round robin is unfair for I/O bound jobs because they often block before using up their time quantum.
 CPU-bound jobs can use up their entire slice — using the same number of slices, CPU-bound jobs get more CPU time.
+
+
 **Virtual round robin** puts jobs that did not use up their time slice into an additional queue.
 Time that hasnt been used gets stored with the processes.
 Jobs in the additional queue are assigned a higher priority than normal jobs.
@@ -241,14 +211,14 @@ Allocate CPU time via round robin; start at the first queue (highest priority) a
 ![Priority queues](img/06-priority-scheduling.png)
 
 This way, it is possible that some processes never run, because their priority is too low (**starvation**).
-To counter this phenomenon, **aging** can be employed, i.e. processes move to a higher priority after waiting a while.
+To counter this phenomenon, **ageing** can be employed, i.e. processes move to a higher priority after waiting a while.
 
 ### Multi-level feedback queue (MLFB) scheduling
 
 In order to get a good trade-off between interactivity and overhead, this policy aims to give I/O-bound jobs a higher priority, but also runs them for smaller time slices, while giving CPU-bound jobs a lower priority, running them for a longer time.
 
 The approach here is to use different queues that have different priorities *and* different time slices.
-E.g. one might assign the priority 2<sup>n</sup> to each queue where n is the queues priority (lower n means higher priority).
+E.g. one might assign the priority `2 ** n` to each queue where n is the queues priority (lower `n` means higher priority).
 In order to keep the balance, move processes that do not use up their time slice repeatedly to a higher priority and move those that do use up their slices repeatedly to a lower priority.
 
 #### Priority donation
@@ -266,7 +236,7 @@ The proposed solution is to give A only the highest priority of B, C and D.
 Issue a total number n of **lottery tickets** to processes.
 The higher the priority of a process is, the more tickets it gets.
 
-Now for each time slice, generate a random number 0 ≤ r < n.
+Now for each time slice, generate a random number `r` where `0 <= r` and `r < n`.
 Traverse the list of all processes, and give the slice to the first process where sum of ticket numbers is bigger than r.
 
 ![Lottery scheduling example](img/06-lottery-example.png)
@@ -358,7 +328,7 @@ They are assigned a priority ranging from 0 to 99 and there are two possible pol
 To run a realtime job on a Linux machine, execute the following (requires root privileges):
 
 ```
-chrt --rr <priority> <task>
+$ chrt --rr <priority> <task>
 ```
 
 #### CFS class
