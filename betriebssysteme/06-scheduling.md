@@ -6,7 +6,42 @@
 
 ## Table of contents
 
-> TODO
+- [Dispatching](#dispatching)
+    - [Which jobs should be assigned to which CPU(s)?](#which-jobs-should-be-assigned-to-which-cpus)
+    - [Voluntary yielding vs. preemption](#voluntary-yielding-vs-preemption)
+        - [Voluntary yielding](#voluntary-yielding)
+        - [Preemption](#preemption)
+    - [CPU switch from process to process, graphically](#cpu-switch-from-process-to-process-graphically)
+- [Scheduling](#scheduling)
+    - [Process states](#process-states)
+    - [Types of schedulers](#types-of-schedulers)
+        - [Short-term scheduler (CPU scheduler)](#short-term-scheduler-cpu-scheduler)
+        - [Long-term scheduler (job scheduler)](#long-term-scheduler-job-scheduler)
+    - [Process scheduling queues](#process-scheduling-queues)
+- [Scheduling policies](#scheduling-policies)
+    - [First-come, first-served (FCFS) scheduling](#first-come-first-served-fcfs-scheduling)
+    - [Shortest-job-first (SJF) scheduling](#shortest-job-first-sjf-scheduling)
+        - [Estimating the length of next CPU burst](#estimating-the-length-of-next-cpu-burst)
+        - [CPU vs. I/O burst cycles](#cpu-vs-io-burst-cycles)
+        - [Boundedness](#boundedness)
+    - [Preemptive shortest-job-first (PSJF) scheduling](#preemptive-shortest-job-first-psjf-scheduling)
+    - [Round robin (RR) scheduling](#round-robin-rr-scheduling)
+    - [Virtual round robin (RR) scheduling](#virtual-round-robin-rr-scheduling)
+    - [(Strict) priority scheduling](#strict-priority-scheduling)
+    - [Multi-level feedback queue (MLFB) scheduling](#multi-level-feedback-queue-mlfb-scheduling)
+        - [Priority donation](#priority-donation)
+    - [Lottery scheduling](#lottery-scheduling)
+- [Linux scheduler](#linux-scheduler)
+    - [O(1) scheduler](#o1-scheduler)
+        - [How the O(1) scheduler works](#how-the-o1-scheduler-works)
+        - [Problems of the O(1) scheduler](#problems-of-the-o1-scheduler)
+    - [Completely fair scheduler](#completely-fair-scheduler)
+        - [Stop class](#stop-class)
+        - [Deadline class](#deadline-class)
+        - [Realtime class](#realtime-class)
+        - [CFS class](#cfs-class)
+        - [Idle class](#idle-class)
+    - [SMP scheduling in the Linux kernel](#smp-scheduling-in-the-linux-kernel)
 
 ## Dispatching
 
