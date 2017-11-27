@@ -129,7 +129,7 @@ Using shared memory in a safe way (and high performace) is tricky due to the **c
 - Set size of shared memory region:  
 `ftruncate(smd, size_t len);`
 - Map shared memory object to address space:  
-`void * mmap(void *addr, size_t len, […], smd, […]);`
+`void * mmap(void *addr, size_t len, [...], smd, [...]);`
 - Unmap shared memory object from address space:  
 `int munmap(void *addr, size_t len);`
 - Destroy shared memory object:  
@@ -242,9 +242,11 @@ Implementation on a _single-core system_ is easy:
 When DNI is set, interrupts never happen and therefore the scheduler is never called.
 
 **Pro**:
+
 - easy and convenient in the kernel
 
 **Contra**:
+
 - only works on single-core machines, disabling interrupts on one CPU doesn’t affect other CPUs
 - we don’t really want to give users power to turn off interrupts, what if they are never turned on again?
 
