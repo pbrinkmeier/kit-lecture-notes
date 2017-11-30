@@ -25,7 +25,7 @@
     - [Deadlocks countermeasures](#deadlocks-countermeasures)
         - [Prevention](#prevention)
         - [Avoidance](#avoidance)
-        - [Resource allocation graph (RAG)](#resource-allocation-graph-rag)
+        - [Resource allocation graph](#resource-allocation-graph)
     - [Recovery from deadlock](#recovery-from-deadlock)
         - [Process termination](#process-termination)
         - [Resource preemption](#resource-preemption)
@@ -35,6 +35,7 @@
 ### POSIX thread synchronization
 
 POSIX provides a number of synchronization constructs that are based on spinlocks and semaphores as described in the last lecture, e.g.
+
 - `pthread_mutex_t` provides semaphore functionality (implemented as futex in Linux)
 - `pthread_cond_t` implements **condition variables** which are similar to a **counting semaphore** but with easier syntax
 - `pthread_rwlock_t` implements **reader-writer-lock**
@@ -289,7 +290,7 @@ void consumer()
 Our problem can be solved with a mutex and two counting semaphores. The idea:
 - new operation that performs unlock, sleep and lock atomically
 - new wake-up operation that is called with lock held
-=> simple mutex lock/unlock around critical section + no signal loss
+⇒ simple mutex lock/unlock around critical section + no signal loss
 
 #### Pthread condition variables
 
@@ -348,7 +349,7 @@ void consumer()
 
 ### Readers-writers problem
 
-Our problem is that many threads try to read or write to the same data at the same time. Reader only read the data set and do not perform any updates, while writers can both read and write.
+Our problem is that many threads try to read or write to the same data at the same time. Readers only read the data set and do not perform any updates, while writers can both read and write.
 
 Using a single mutex for read and write operations is not a good solution as it unnecessarily blocks out multiple readers while not writer is present.  
 **Idea**: locking should reflect different semantics for reading data and for writing data. If no thread writes, multiple readers may be present. If a thread writes, no other readers and writers are allowed.
@@ -391,7 +392,7 @@ void reader()
 }
 ```
 
-=> writer cannot acquire `write_lock` until the last reader leaves the critical section
+⇒ writer cannot acquire `write_lock` until the last reader leaves the critical section
 
 #### 2nd problem: writers preference
 
@@ -451,7 +452,7 @@ The dining philosophers problem models multiple threads competing for a limited 
 3. Grab for one chopstick
 4. Grab for other chopstick
 5. Eat
-6. Put down chopstick
+6. Put down chopsticks
 
 ![](img/08-philosophers.png)
 
@@ -514,8 +515,8 @@ Three approaches to dealing with deadlocks:
 
 Negate _at least one_ of the required deadlock conditions:
 
-1. Mutual exclusion: buy more resources, split into pieces, virtualize -> “infitine” num of instances
-2. Hold and wait: get all resources en-bloque/2-phase-locking
+1. Mutual exclusion: buy more resources, split into pieces, virtualize ⇒ “infitine” num of instances
+2. Hold and wait: get all resources to unblock/2-phase-locking
 3. No preemption: virtualize to make preemtable (virtual vs. physical memory, spooling)
 4. Circular wait: ordering of resources (e.g. always acquire mutex `m1` before `m2`)
 
@@ -523,16 +524,16 @@ Negate _at least one_ of the required deadlock conditions:
 
 ![](img/08-safestate.png)
 
-- If a system is in safe state -> no deadlocks
-- If a system is in unsafe state -> deadlocks possible
+- If a system is in safe state ⇒ no deadlocks
+- If a system is in unsafe state ⇒ deadlocks possible
 
 On every resource request decide whether system stays in safe state (needs a-prior information), use a resource allocation graph for that.
 
 ![](img/08-deadlock-avoidance.png)
 
-#### Resource allocation graph (RAG)
+#### Resource allocation graph
 
-In the **resource allocation graph**, round nodes represent processes and square nodes represent resources. Every instance of a resource is depicted as a dot in the resource node.
+In the **resource allocation graph** (RAG), round nodes represent processes and square nodes represent resources. Every instance of a resource is depicted as a dot in the resource node.
 
 Resources requests and assignments are edges:
 
@@ -542,7 +543,7 @@ Resources requests and assignments are edges:
 
 ![](img/08-rag.png)
 
-Deadlock detection: allow system to enter deadlock -> detection -> recovery scheme
+Deadlock detection: allow system to enter deadlock ⇒ detection ⇒ recovery scheme
 
 The system maintains a **wait-for graph** (WFG). Nodes are processes, an edge represents “wait for” relationship (like in the RAG but without resources).
 
