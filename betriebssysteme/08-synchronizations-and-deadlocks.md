@@ -65,16 +65,16 @@ typedef struct {
 
 void inc(Count *num)
 {
-    pthread_mutex_lock(&num.lock);
-    num.count++;
-    pthread_mutex_unlock(&num.lock);
+    pthread_mutex_lock(&num->lock);
+    num->count++;
+    pthread_mutex_unlock(&num->lock);
 }
 
 void dec(Count *num)
 {
-    pthread_mutex_lock(&num.lock);
-    num.count--;
-    pthread_mutex_unlock(&num.lock);
+    pthread_mutex_lock(&num->lock);
+    num->count--;
+    pthread_mutex_unlock(&num->lock);
 }
 ```
 
