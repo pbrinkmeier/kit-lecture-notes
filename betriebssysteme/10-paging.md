@@ -1,6 +1,6 @@
 # 10: Paging
 
-> 28.11.2017
+> 28.11.2017, 04.12.2017
 
 ## Table of contents
 
@@ -8,34 +8,37 @@ _TODO_
 
 ## Desired properties when sharing physical memory
 
-- **Protection**:
-    - A bug in some process should not affect any other process
-    - Do not allow processes to manipulate/observe other process&rsquo; memory
-- **Transparency**:
-    - Processes should not need to rely on knowing physical memory
-    - Processes should be allowed to use big amounts of contiguous memory
-- **Resource exhaustion**:
-    - Allow the sum of memory allocated by all processes to be greater than actual physical memory
+- **Protection**: processes should not be allowed to manipulate/observe other process&rsquo; memory
+- **Transparency**: processes should not need to rely on knowing physical memory
+- **Resource exhaustion**: allow the sum of memory allocated by all processes to be greater than actual physical memory
+
+See chapter 9 for more information.
 
 ## Memory management unit
 
-Safe and secure protection can only be achieved in hardware.
+Safe and secure memory protection can only be achieved in hardware.
 A hardware device called **memory management unit** (MMU) maps virtual to physical addresses.
-Userspace programs only deal with those virtual addresses and never sees real physical ones.
+Userspace programs only deal with those virtual addresses and never see real physical ones.
 
 _TODO: insert image from 3/29._
 
 ## Paging
 
-A **present bit** in the **page table** indicates whether a virtual page is currently mapped to physical memory.
-The MMU reads the page table and translates valid mappings.
-If a process issues and instruction that accesses an invalid virtual address, the MMU calls the kernel for handling the situation (**page fault**).
+**Paging** describes dividing physical memory into chunks of fixed size called **page frames**.
+Typical frame sizes are between 1KiB and 4MiB.
 
-_TODO: insert image from 4/29_
+The operating system maintains a **page table** that represents a mapping from **virtual page numbers** (VPNs) to **page frame numbers** (PFNs).
+A **present bit** in this table indicates whether a virtual page is currently mapped to physical memory.
+The MMU accesses the page table and translates virtual addresses into physical addresses.
+If a process issues an instruction that accesses an invalid virtual address, the MMU calls the kernel for handling the situation (**page fault**).
+
+![Paging](10-paging.png)
 
 ### Page table entry
 
-Except for the **valid bit** and **page frame number**, all of these fields are optional.
+The following is a list of fields a page table entry may have.
+Which fields the entry actually has depends on the system used.
+Except for the **valid bit** and the **page frame number, all of these are optional.
 
 - **Valid bit**/**present bit**: whether the page is currently used
 - **Page frame number**: base address of the physical memory page
@@ -46,48 +49,151 @@ Except for the **valid bit** and **page frame number**, all of these fields are 
 
 ### The operating system and paging
 
-The operating system performs operations that requires semantic knowledge.
+The operating system performs operations that require semantic knowledge:
 
-_TODO: 9/29_
+- Page allocation (finding a free page frame in the page table)
+- Page replacement (some pages are replaceable, e.g. heap segments that can be swapped to a **pagefile** or **swap area**)
+- Context switches (OS sets the MMU&rsquo;s base register (e.g. `%CR3` on x86) to point to the page hierarchy of the another process&rsquo; address space
 
 ### Page size trade-offs
 
-_TODO: internal fragmentation 10ff._
+Paging eliminates external fragmentation due to its fixed size blocks.
+However, **internal fragmentation** becomes a problem:
+If a the memory allocated by a process is not exact multiple of the page size (which is mostly isn&rsquo;t), some of the allocated memory is not used.
 
-- Fragmentation
-- Page table size
-- I/O
+![Internal fragmentation visualized](img/10-internal-fragmentation.png)
+
+- Fragmentation:
+    - Large pages ⇒ more memory is wasted due to internal fragmentation
+    - Small pages ⇒ less internal fragmentation
+- Page table size:
+    - Large pages ⇒ less pages ⇒ fewer bits for page frame numbers, fewer page table entries
+    - Small pages ⇒ more pages ⇒ more bits for page frame numbers, more page table entries
+    - Note: some page table layouts support multiple page sizes (e.g. x86-64)
+- I/O:
+    - Small pages ⇒ more page faults when loading big chunks of data ⇒ more overhead
 
 ## Page table layouts
 
 ### Linear page table
 
-A virtual address consists of the **virtual page number** (VPN), which is an index of the page table mapping it to a **page** (usually around 1Ki) of phyiscal memory, and the **page offset**, which is added to the base address of the page.
+In this layout, a virtual address consists of a **virtual page number** (VPN) and a **page offset**.
+The virtual address is an index in an array of base addresses.
+The physical address is the sum of the base address and the page offset.
 
-```
-page_table[0] = 0x0
-page_table[1] = 0x1
-page_table[2] = 0x2
-...
+![Translation of virtual address 0x10123 using a linear page table](img/10-paging-translation-scheme.png)
 
-physical_address(virtual_address) =
-	((page_table[virtual_address >> 4] << 4) + (virtual_address & 0xffff)
-```
-
-_TODO: insert image from 6/29_ 
-Not practical, since it uses _a lot_ of space.
-
-_TODO: insert example calculation_
+Linear page tables are not used in practice, because the use a _lot_ of space.
 
 ### Hierarchical page table
 
-A mapping for each VPN must be present for each process at all times.
-Since most processes only use a tiny slice of their available VPNs, they don&rsquo;t need a complete table.
-A method for implementing this is to split up the address space into multiple page tables forming an **hierarchical page table**.
+Each process needs to have a mapping for all VPNs at all times; however, most processes only use a small slice of their available VPNs.
+This means that most processes do not need to have access to the whole page table.
+An **hierarchical page table** splits up the address space into multiple smaller page tables.
 
-The problem of hierarchical tables is that a lot of lookups are needed per resolved address.
+The problem of hierarchical tables usually is that a lot of lookups (slow main memory accesses) are needed per resolved address.
 
-#### Example: two-level page table
+### Linear inverted page table
+
+An **inverted page table** stores mapping _from_ physical addresses to VPNs.
+Only one table per system is needed, because one table can serve all processes.
+This way, it uses only a fraction of the memory a linear or hierarchical page table would.
+
+![Linear inverted page table schema](img/10-linear-inverted-page-table.png)
+
+The problem is that resolving an address happens in linear time, proportional to the amount of page frames.
+
+### Hashed inverted page table
+
+Just like an inverted page table, but a **hash anchor table**, indexed by hashed virtual page numbers, limits the search to at most a few page table entries.
+
+![Hashed inverted page table schema](img/10-hashed-inverted-page-table.png)
+
+#### Typical lookup in an hashed inverted page table
+
+1. Hash virtual page number part of virtual address
+2. Lookup the page table entry using this hash
+3. If the virtual page number of the entry does not match the one of the virtual address, look at the next one and repeat this step
+4. Use the page table entry to make the physical address
+
+![Lookup schema for hashed inverted page table](img/10-hashed-inverted-lookup.png)
+
+## Translation lookaside buffer
+
+Memory lookups often happen sequentially (e.g. array accesses, reading instructions) and thus only a few pages are used most of the time.
+The **translation lookaside buffer** (TLB) caches results of page table lookups.
+
+### Naiive paging is slow
+
+_TODO: 21/29_
+
+Caches lookups in order to make further lookups fast.
+
+### TLB operation
+
+Many TLB entries can be compared at the same time in hardware.
+That&rsquo;s what makes the TLB fast.
+On every memory load and store operation, check if result is already cached, if not, look it up in the page table and insert it into the cache.
+
+_TODO: 22/29_
+
+### Address space identifiers
+
+_TODO: 24/29_
+
+### TLB reach
+
+**TLB reach** (also known as **TLB coverage**) describes the amount of memory accessible with TLB hits.
+The formula is:
+
+```
+TLB_reach = TLB_size * page_size
+```
+
+Ideally, the working set of each process is stored in the TLB.
+
+In order to increase the TLB reach, we can either increase the TLB size or the page size.
+Increasing TLB size is very expensive; increasing page size increases internal fragmentation.
+
+A good approach is to provide different page sizes.
+This allow processes to allocate larger memory areas without filling the TLB too much and increasing internal fragmentation.
+
+### Effective access time
+
+_TODO: 26/29_
+
+## System virtualization
+
+Goal: mapping guest page tables to host page tables efficiently.
+
+_TODO: introduction 9/17_
+
+### Hosted and bare-metal
+
+_TODO: 10/17_
+
+### Two levels of page tables
+
+Host OS translates between physical and virtual (physical for the guest) addresses.
+Hypervisor translates between virtual and guest-virtual addresses.
+
+#### Shadow page tables
+
+Software-based virtualization of page tables.
+To keep PTs in sync: intercept changes to CR3, bits, &hellip;
+Adds too much overhead.
+
+#### Hardware based virtualization
+
+Hardware implements PT capacities for seperate page tables.
+
+_TODO: 15/17_
+
+Advantages, disadvantages.
+
+## Examples
+
+### Example: two-level page table
 
 On a 32-bit machine using pages of 4 KiB, virtual addresses are divided into:
 
@@ -100,37 +206,75 @@ The page number p is subdivided into:
 - Index in **page directory** (p1): 10 bits
 - Index in **page table entry** (p2): 10 bits
 
-_TODO: 12/29_
+![A simple example of an hierarchical page table](10-hierarchical-page-table.png)
 
-#### Example: 32-bit Intel architecture (IA-32)
+### Example: 32-bit Intel architecture (IA-32)
 
-_TODO: 13ff._
+IA-32 divides a virtual address into a 10-bit directory pointer, a 10-bit table pointer and a 12-bit offset.
 
-#### Example: four-level page table (x86-64)
+![IA-32 page table hierarchy overview](10-ia32-page-hierarchy.png)
 
-Does this even make sense?
-Five memory accesses for looking up just a single entry?
+The **page directory** contains pointers to a page tables.
+The directory pointer points to such an entry.
 
-_TODO: 16/29_
+![IA-32 page directory](10-ia32-page-directory.png)
 
-### Inverted page table
+The **page table**s contain pointers to actual pages.
+The offset is added to such a pointer to get the physical address.
 
-Instead of storing a mapping from VPNs to phyical addresses, store a mapping from physical addresses VPNs.
-Thus we avoid having to store lots of entries, as only one table per system is needed (single table serves all processes).
+![IA-32 page table](10-ia32-page-table.png)
 
-The big advantage over a linear or hierarchical page table is that only a small amount of memory is needed.
-The problem is that resolving an address happens in linear time, proportional to the amount of page frames.
+### Example: Intel/AMD x86 64-bit
 
-_TODO: 17/29_
+- x86-64 **long mode**: 4-level hierarchical page table
+- **Page directory base register** (control register 3, `%CR3`) stores the starting physical address of the first level page table
+- For every address space, the page table hierarchy goes as follows
+    - Page map level 4 (PML4)
+    - Page directory pointers table (PDPT)
+    - Page directory (PD)
+    - Page table entry (PTE)
+- At each level, the respective table can either point to a directory in the next hierarchy level, or to an entry containing actual mapping data
+- Depending on the depth of the entry, the mapping has different sizes:
+    - PDPTE: 1 GiB page
+    - PDE: 2 MiB page
+    - PTE: 4 KiB page
 
-### Hashed inverted page table
+![x86-64 page table hierarchy](img/10-x86-64-page-table-hierarchy.png)
 
-Just like an inverted page table, but the **hash anchor table** limits the search to at most a few PTEs.
+- Intel 4-level paging supports a maximum of 256 TiB virtual address space
+    - 48 bit linear addresses
+    - with 4 KiB page: 9 bit index into PML4, PDPT, PD, PT; 12 bit page offset
+- Processors use 46 bit physical addresses (max. 64 TiB physical memory)
+- Intel 5-level pages: extension for larger address space
+    - add 9 bits for 5th level of hierarchy ⇒ 128 PiB virtual memory
+    - physical address width extended up to 52 bit ⇒ 4 PiB virtual memory
 
-_TODO: 18/29_
+### Example: ARM 32-bit
 
-_TODO: 19/29_
+- 1 MiB pages with a 1 level page table: 12/20
+- 64 KiB pages with a 2 level page table: 12/4/16
+- 4 KiB pages with a 2 level page table: 12/8/12
 
-## Translation lookaside buffer
+In newer architectures, the subpages shown below are deprecated.
 
-Caches lookups in order to make further lookups fast.
+![ARM 32-bit page table hierarchy](10-arm32-page-table.png)
+
+### Example: ARM 64-bit
+
+- 512 MiB pages with a 2 level page table: 1/13/29
+
+![ARM 64-bit large pages](10-arm64-512m.png)
+
+- 64 KiB with a 3 level page table: 1/13/13/16
+
+![ARM 64-bit small pages](10-arm64-64k.png)
+
+- Additional level using bits 47 to 42 supported
+
+### Example: PowerPC 32-bit
+
+- Combination of segmentation and inverted page table
+- Segementation yields virtual base, hash indicates entry in page table bucket
+- CPU searches page table bucket, calls OS if no matching entry exists
+
+![PowerPC 32-bit page table hierarchy](10-powerpc32-page-table.png)
