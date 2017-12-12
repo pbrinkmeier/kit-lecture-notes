@@ -4,11 +4,57 @@
 
 ## Table of contents
 
-_TODO_
+- [TL;DR](#tldr)
+- [Desired properties when sharing physical memory](#desired-properties-when-sharing-physical-memory)
+- [Memory management unit](#memory-management-unit)
+- [Paging](#paging)
+    - [Page table entry](#page-table-entry)
+    - [The operating system and paging](#the-operating-system-and-paging)
+    - [Page size trade-offs](#page-size-trade-offs)
+- [Page table layouts](#page-table-layouts)
+    - [Linear page table](#linear-page-table)
+    - [Hierarchical page table](#hierarchical-page-table)
+    - [Linear inverted page table](#linear-inverted-page-table)
+    - [Hashed inverted page table](#hashed-inverted-page-table)
+        - [Typical lookup in an hashed inverted page table](#typical-lookup-in-an-hashed-inverted-page-table)
+- [Translation lookaside buffer](#translation-lookaside-buffer)
+    - [Naïve paging is slow](#nave-paging-is-slow)
+    - [TLB operation](#tlb-operation)
+    - [TLB misses](#tlb-misses)
+        - [Software-managed TLB](#software-managed-tlb)
+        - [Hardware-managed TLB](#hardware-managed-tlb)
+    - [Address space identifiers](#address-space-identifiers)
+    - [TLB reach](#tlb-reach)
+    - [Effective access time](#effective-access-time)
+    - [Influence on program structure](#influence-on-program-structure)
+- [Page tables and virtualization](#page-tables-and-virtualization)
+    - [Two levels of page tables](#two-levels-of-page-tables)
+    - [Shadow page tables](#shadow-page-tables)
+    - [Hardware based virtualization](#hardware-based-virtualization)
+    - [Pros and cons of hardware-based virtualization of address translation](#pros-and-cons-of-hardware-based-virtualization-of-address-translation)
+- [Examples](#examples)
+    - [Example: two-level page table](#example-two-level-page-table)
+    - [Example: 32-bit Intel architecture (IA-32)](#example-32-bit-intel-architecture-ia-32)
+    - [Example: Intel/AMD x86 64-bit](#example-intelamd-x86-64-bit)
+    - [Example: ARM 32-bit](#example-arm-32-bit)
+    - [Example: ARM 64-bit](#example-arm-64-bit)
+    - [Example: PowerPC 32-bit](#example-powerpc-32-bit)
+
+## TL;DR
+
+- **Page tables** are used by the to tell the MMU how it wants physical memory to be laid out and what to use it for (write-/read-only pages)
+- Different **page table layouts** have been developed in the past:
+    - [Linear page table](#linear-page-table)
+    - [Hierarchical page table](#hierarchical-page-table)
+    - [Linear inverted page table](#linear-inverted-page-table)
+    - [Hashed inverted page table](#hashed-inverted-page-table)
+- Perfoming page table lookups slows down memory lookups and hence program execution a _lot_
+    - A special cache called **translation lookaside buffer** (TLB) stores results of page table lookups
+    - Typically about 95% of all translations are TLB hits  
 
 ## Desired properties when sharing physical memory
 
-- **Protection**: processes should not be allowed to manipulate/observe other process&rsquo; memory
+- **Protection**: processes should not be allowed to manipulate/observe other process’ memory
 - **Transparency**: processes should not need to rely on knowing physical memory
 - **Resource exhaustion**: allow the sum of memory allocated by all processes to be greater than actual physical memory
 
@@ -38,7 +84,7 @@ If a process issues an instruction that accesses an invalid virtual address, the
 
 The following is a list of fields a page table entry may have.
 Which fields the entry actually has depends on the system used.
-Except for the **valid bit** and the **page frame number, all of these are optional.
+Except for the **valid bit** and the **page frame number**, all of these are optional.
 
 - **Valid bit**/**present bit**: whether the page is currently used
 - **Page frame number**: base address of the physical memory page
@@ -53,13 +99,13 @@ The operating system performs operations that require semantic knowledge:
 
 - Page allocation (finding a free page frame in the page table)
 - Page replacement (some pages are replaceable, e.g. heap segments that can be swapped to a **pagefile** or **swap area**)
-- Context switches (OS sets the MMU&rsquo;s base register (e.g. `%CR3` on x86) to point to the page hierarchy of the another process&rsquo; address space
+- Context switches (OS sets the MMUs base register (e.g. `%CR3` on x86) to point to the page hierarchy of the another process’ address space
 
 ### Page size trade-offs
 
 Paging eliminates external fragmentation due to its fixed size blocks.
 However, **internal fragmentation** becomes a problem:
-If a the memory allocated by a process is not exact multiple of the page size (which is mostly isn&rsquo;t), some of the allocated memory is not used.
+If the memory allocated by a process is not exact multiple of the page size (which is mostly isn’t), some of the allocated memory is not used.
 
 ![Internal fragmentation visualized](img/10-internal-fragmentation.png)
 
@@ -134,7 +180,7 @@ Typically, a TLB has somewhere around 64 and 2 thousand entries and a hit rate o
 ### TLB operation
 
 Many TLB entries can be compared at the same time in hardware.
-That&rsquo;s what makes the TLB fast.
+That’s what makes the TLB fast.
 On every memory load and store operation, check if result is already cached, if not, look it up in the page table and insert it into the cache.
 
 ![Translation lookaside buffer schema](img/10-translation-lookaside-buffer.png)
@@ -206,7 +252,7 @@ EAT =
 
 ### Influence on program structure
 
-Goal: fill a 128&times;128 matrix with zeroes.
+Goal: fill a 128×128 matrix with zeroes.
 We assume that each row is stored in one page and that in the beginning, none of the pages is cached in the TLB.
 
 Naïve approach:
@@ -221,7 +267,7 @@ for (int j = 0; j < 128; j++) {
 }
 ```
 
-This yields 16,384 (128 &times; 128) TLB misses because it sets the first cell of the first page, then the first of the second page, then the first of the third page and so on.
+This yields 16,384 (128×128) TLB misses because it sets the first cell of the first page, then the first of the second page, then the first of the third page and so on.
 The better approach is to iterate over a row before jumping to the next row:
 
 ```
@@ -271,7 +317,7 @@ Due to a lot of trapping to the hypervisor necessary because of page table synch
 
 Capacities for nested page tables may be implemented in hardware (e.g. **NPT** by AMD, **EPT** by Intel).
 
-![](img/10-nested-pt.png)
+![](img/10-nested-page-tables.png)
 
 ![](img/10-amd-npt-guest-tables.png)
 
@@ -281,7 +327,7 @@ Advantages include:
 
 - The guest can manage its page tables without trapping to the hypervisor
 - No need for the hypervisor to keep a copy of the guests page table
-- Additional performance optimizations can be implemented in memory, e.g. nested TLBs, TLB partioning, page-walk cachec, &hellip;
+- Additional performance optimizations can be implemented in memory, e.g. nested TLBs, TLB partioning, page-walk cache, …
 
 Disadvantages include:
 
@@ -302,23 +348,23 @@ The page number p is subdivided into:
 - Index in **page directory** (p1): 10 bits
 - Index in **page table entry** (p2): 10 bits
 
-![A simple example of an hierarchical page table](10-hierarchical-page-table.png)
+![A simple example of an hierarchical page table](img/10-hierarchical-page-table.png)
 
 ### Example: 32-bit Intel architecture (IA-32)
 
 IA-32 divides a virtual address into a 10-bit directory pointer, a 10-bit table pointer and a 12-bit offset.
 
-![IA-32 page table hierarchy overview](10-ia32-page-hierarchy.png)
+![IA-32 page table hierarchy overview](img/10-ia32-page-hierarchy.png)
 
 The **page directory** contains pointers to a page tables.
 The directory pointer points to such an entry.
 
-![IA-32 page directory](10-ia32-page-directory.png)
+![IA-32 page directory](img/10-ia32-page-directory-entry.png)
 
 The **page table**s contain pointers to actual pages.
 The offset is added to such a pointer to get the physical address.
 
-![IA-32 page table](10-ia32-page-table.png)
+![IA-32 page table](img/10-ia32-page-table-entry.png)
 
 ### Example: Intel/AMD x86 64-bit
 
@@ -353,17 +399,17 @@ The offset is added to such a pointer to get the physical address.
 
 In newer architectures, the subpages shown below are deprecated.
 
-![ARM 32-bit page table hierarchy](10-arm32-page-table.png)
+![ARM 32-bit page table hierarchy](img/10-arm32-page-table.png)
 
 ### Example: ARM 64-bit
 
 - 512 MiB pages with a 2 level page table: 1/13/29
 
-![ARM 64-bit large pages](10-arm64-512m.png)
+![ARM 64-bit large pages](img/10-arm64-512m.png)
 
 - 64 KiB with a 3 level page table: 1/13/13/16
 
-![ARM 64-bit small pages](10-arm64-64k.png)
+![ARM 64-bit small pages](img/10-arm64-64k.png)
 
 - Additional level using bits 47 to 42 supported
 
@@ -373,4 +419,4 @@ In newer architectures, the subpages shown below are deprecated.
 - Segementation yields virtual base, hash indicates entry in page table bucket
 - CPU searches page table bucket, calls OS if no matching entry exists
 
-![PowerPC 32-bit page table hierarchy](10-powerpc32-page-table.png)
+![PowerPC 32-bit page table hierarchy](img/10-powerpc32-page-table.png)
