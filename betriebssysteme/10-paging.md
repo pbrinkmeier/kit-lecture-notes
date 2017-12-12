@@ -120,14 +120,16 @@ Just like an inverted page table, but a **hash anchor table**, indexed by hashed
 
 ## Translation lookaside buffer
 
+### Naïve paging is slow
+
+Using page tables, especially the most commonly used hierarchical ones, means that every load and store operation requires multiple memory accesses.
+In a four level hierarchy, every load and store operation performs five memory accesses; four accesses to page directories and tables and the actual operation.
+
 Memory lookups often happen sequentially (e.g. array accesses, reading instructions) and thus only a few pages are used most of the time.
 The **translation lookaside buffer** (TLB) caches results of page table lookups.
+It maps virtual page numbers to page frame numbers and their flags.
 
-### Naiive paging is slow
-
-_TODO: 21/29_
-
-Caches lookups in order to make further lookups fast.
+Typically, a TLB has somewhere around 64 and 2 thousand entries and a hit rate of at least 95%.
 
 ### TLB operation
 
@@ -135,11 +137,38 @@ Many TLB entries can be compared at the same time in hardware.
 That&rsquo;s what makes the TLB fast.
 On every memory load and store operation, check if result is already cached, if not, look it up in the page table and insert it into the cache.
 
-_TODO: 22/29_
+![Translation lookaside buffer schema](img/10-translation-lookaside-buffer.png)
+
+### TLB misses
+
+When the TLB does not contain an entry for a virtual page number, a new entry is inserted and an older one will be overwritten.
+This can be handled either in software or in hardware.
+
+#### Software-managed TLB
+
+On a TLB miss, the CPU issues a TLB miss exception.
+The OS receives the exception and decides what entry to evict from the TLB in order to make space.
+It then walks the page table hierarchy to insert the new entry.
+
+For example, the MIPS architecture uses a software-managed TLB.
+
+#### Hardware-managed TLB
+
+On a TLB miss, an entry gets evicted from the TLB by some policy encoded in hardware.
+The hardware then walks the page table hierarchy to insert the new entry.
+
+For example, x86-64 and ARM use a hardware-managed TLB.
 
 ### Address space identifiers
 
-_TODO: 24/29_
+Using multiple address spaces, one and the same virtual page number may refer to different page frames.
+This may lead to entries being evicted from the TLB on address space switches.
+
+This issue can be avoided by resolving the ambiguity of VPNs in the TLB by adding additional identfiers to TLB entries.
+These identifiers are called **address space identifier**s (ASID).
+
+The TLB now maps a combination of ASID and VPN to page frame numbers.
+TLB flushing resulting from context switches are now eliminated.
 
 ### TLB reach
 
@@ -150,7 +179,7 @@ The formula is:
 TLB_reach = TLB_size * page_size
 ```
 
-Ideally, the working set of each process is stored in the TLB.
+Ideally, the working set of each process can be and is stored in the TLB.
 
 In order to increase the TLB reach, we can either increase the TLB size or the page size.
 Increasing TLB size is very expensive; increasing page size increases internal fragmentation.
@@ -160,9 +189,54 @@ This allow processes to allocate larger memory areas without filling the TLB too
 
 ### Effective access time
 
-_TODO: 26/29_
+A TLB lookup takes `t` time units, e.g. `t = 1`.
+A memory cycle takes `m` time units, e.g. `m = 100`.
+TLB has a hit rate (cached accesses per memory accesses) of `a`, e.g. `a = 0.99`.
+The **effective access time** (EAT) for a linear page table without additional cache is defined as:
 
-## System virtualization
+```
+EAT =
+  // one TLB lookup and one memory access per cache hit
+  (t + m) * a
+  // one TLB lookup and 2 memory accesses per cache miss
++ (t + 2 * m) * (1 - a)
+
+= t + 2 * m - m * a
+```
+
+### Influence on program structure
+
+Goal: fill a 128&times;128 matrix with zeroes.
+We assume that each row is stored in one page and that in the beginning, none of the pages is cached in the TLB.
+
+Naïve approach:
+
+```c
+int data[128][128];
+
+for (int j = 0; j < 128; j++) {
+	for (int i = 0; i < 128; i++) {
+		data[i][j] = 0;
+	}
+}
+```
+
+This yields 16,384 (128 &times; 128) TLB misses because it sets the first cell of the first page, then the first of the second page, then the first of the third page and so on.
+The better approach is to iterate over a row before jumping to the next row:
+
+```
+int data[128][128];
+
+for (int j = 0; j < 128; j++) {
+	for (int i = 0; i < 128; i++) {
+		data[j][i] = 0; // indices swapped
+	}
+}
+```
+
+This only causes one TLB miss for each row, i.e. 128.
+
+## Page tables and virtualization
 
 Goal: mapping guest page tables to host page tables efficiently.
 
