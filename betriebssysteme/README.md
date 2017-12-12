@@ -36,4 +36,5 @@ _Die Vorlesungsfolien und Übungsblätter sind in englischer Sprache verfasst, d
 - [06: Dispatching, Scheduling, Scheduling Policies](06-scheduling.md) _07.11.2017_
 - [07: Inter Process Communication](07-inter-process-communication.md) _14.11.2017_
 - [08: Synchronization and Deadlocks](08-synchronizations-and-deadlocks.md) _20.11.2017, 21.11.2017_
+- [09: Memory management hardware](09-memory-management-hardware.md) _27.11.2017_
 - [Glossary](glossary.md) _(list of important terms and abbreviations)_
