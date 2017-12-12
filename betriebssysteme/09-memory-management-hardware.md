@@ -45,11 +45,11 @@ When talking about **swapping**, that means
 
 ![](img/09-swapping.png)
 
-**Positive:**
+Positive:
 
 - Hardware support only required to protect the kernel, not required to protect processes from one another
 
-**Negative:**
+Negative:
 
 - Very slow (total transfer time proportional to the amout of memory swapped)
 - No parallelism: the currently running process owns the entire physical address space
@@ -76,7 +76,7 @@ Also this solution isn’t very flexible. Assume a situation as presented in the
 - …`mplayer` is pausing playback and currently doesn’t need that much memory? (re-use of memory by other process?)
 - …a new process doesn’t fit into a contiguous free region?
 
-**We want programs to co-exist peacefully. Therefore, we’re in need for dynamic allocation and mutual protection!**
+We want programs to co-exist peacefully. Therefore, we’re in need for dynamic allocation and mutual protection!
 
 ## Virtual memory
 
@@ -147,7 +147,7 @@ A possible solution to shortcomings of the base + limit approach is to use _mult
 
 Every virtual address consists of a tuple: `(segment #, offset)`. These can be encoded in the address and selected by an instruction or and operand.
 
-Each process (= each address space) has a seperate **segment table** that maps a virtual addresse to physical addresses in memory. The table is defined by three columns:
+Each process (= each address space) has a seperate **segment table** that maps a virtual address to physical addresses in memory. The table is defined by three columns:
 
 - **Base**: starting physical address where the segment resides in the memory
 - **Limit**: length of the segment
@@ -189,95 +189,4 @@ Keep in mind that compaction is _very_ expensive: processed need to be halted wh
 
 ## Paging
 
-The idea behind **paging** is to divide the physical memory into fixed-sized blocks called **page frames**. Their size is always a power of 2 bytes, typical frame sizes include 4 KiB, 2 MiB and 4 MiB.  
-The virtual memory on the other side is divided into blocks called **pages** with the same sizes available as for the frames.
-
-The OS keeps a **page table** that stores mappings between **virtual page numbers** (vpn) and **page frame numbers** (pfn) for each address space. It also keeps track of all free frames and modifies page tables as needed. To run a program of size `n` pages, it needs to find `n` free frames and load the program.
-
-![](img/09-paging.png)
-
-A **present bit** in the table indicates whether a virtual page is currently mapped to physical memory or not.  
-The MMU reads the page table and autonomously translates valid mappings. If a process issues an instruction to access a virtual address that is currently _not_ mapped, the MMU calls the OS to bring in the data (**page fault**).
-
-### Address translation scheme
-
-![](img/09-virtual-address.png)
-
-A virtual address is divided into:
-
-- a **virtual page number `p`** which is an index in the **page table** (which contains base address of each page in physical memory)
-- a **page offset** that is concatenated with the base address and results in a physical address
-
-![](img/09-paging-translation-scheme.png)
-
-### Hierarchical page table
-
-We still have a problem: for _every_ address space, the complete page table (that can map _all_ virtual page numbers) must be kept in memory.
-
-The idea is to use another layer of indirection to only store a small section of the table in our address space, because most virtual addresses aren’t used by our program anyway. For that, divide the virtual address further into multiple page tables indices `pn` forming a **hierarchical page table**.
-
-![](img/09-hierarchical-page-table.png)
-
-#### Intel x86-64 page table hierarchy
-
-- x86-64 **long mode**: 4-level hierarchical page table
-- **Page directory base register** (control register 3, `%CR3`) stores the starting physical address of the first level page table
-- For every address space, the page table hierarchy goes as follows
-    - Page map level 4 (PML4)
-    - Page directory pointers table (PDPT)
-    - Page directory (PD)
-    - Page table entry (PTE)
-- At each level, the respective table can either point to a directory in the next hierarchy level, or to an entry containing actual mapping data
-- Depending on the depth of the entry, the mapping has different sizes:
-    - PDPTE: 1 GiB page
-    - PDE: 2 MiB page
-    - PTE: 4 KiB page
-
-![](img/09-x86-64-page-table-hierarchy.png)
-
-- Intel 4-level paging supports a maximum of 256 TiB virtual address space
-    - 48 bit linear addresses
-    - with 4 KiB page: 9 bit index into PML4, PDPT, PD, PT; 12 bit page offset
-- Processors use 46 bit physical addresses (max. 64 TiB physical memory)
-- Intel 5-level pages: extension for larger address space
-    - add 9 bits for 5th level of hierarchy ⇒ 128 PiB virtual memory
-    - physical address width extended up to 52 bit ⇒ 4 PiB virtual memory
-
-### Page table entry content
-
-- The **valid bit** (aka. **present bit**) stores whether the page is currently available in memory or needs to be brought in by the OS (via page fault)
-- The **page frame number** indicates at which physical address the page is currently loaded (if page is present)
-- The **write bit** enables/disables writing to the page. If a process writes to a page with a clear write bit, the MMU halts the operation and raises a page fault
-- **Caching**: whether this page should be cached at all and with which policy
-- **Accessed bit**: set by the MMU to store whether the page was touched since the bit was last cleared by the OS
-- **Dirty bit**: set by the MMU to store whether the page was modified since the bit was last cleared by the OS
-
-### The OS’s involvement in paging
-
-The OS performs all operations that require semantic knowledge:
-
-- Page allocation and bringing data into memory (the OS needs to find a free page frame for new pages and set up the mapping)
-- Page replacement
-    - When all page frames are in use, evict pages from memory to make room for new pages (code section can be dropped and re-read later, heap memory has to be saved to a **pagefile** or **swap area** before frame can be evicted)
-- Context switching (OS sets the MMU’s base register (`%CR3` on x86) to point to the page hierarchy of the next process’s address space)
-
-### Internal fragmentation
-
-Paging eliminates external fragmentation due to its fixed size blocks. With paging however, **internal fragmentation** becomes a problem: because the memory can only be allocated in course grained page frame sizes, an unused rest of the last allocated page cannot be used if the allocated virtual memory area doesn’t end at a page boundary (which they typically don’t).
-
-![](img/09-internal-fragmentation.png)
-
-### Conclusion
-
-Paging is great, but we still have to live with some tradeoffs depending on the selected page size:
-
-- Fragmentation:
-    - Larger pages ⇒ more memory is wasted due to internal fragmentation for every allocation
-    - Small pages ⇒ only half a page wasted for every allocation (on average)
-- Table size:
-    - Larger pages ⇒ fewer bits needed for pfn (more bits in the offset), fewer PTEs
-    - Smaller pages ⇒ more and larger PTEs
-    - **Note**: page table hierarchies support multiple page sizes with uniform entries, larger pages need fewer page tables (e.g. x86-64)
-- I/O:
-    - Larger pages ⇒ more data needs to be loaded from disk to make page valid
-    - Smaller pages ⇒ need to trap to OS more often when loading large program
+_See chapter 10 for paging._
