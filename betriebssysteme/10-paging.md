@@ -20,7 +20,7 @@ Safe and secure memory protection can only be achieved in hardware.
 A hardware device called **memory management unit** (MMU) maps virtual to physical addresses.
 Userspace programs only deal with those virtual addresses and never see real physical ones.
 
-_TODO: insert image from 3/29._
+![Memory management unit schema](img/09-mmu.png)
 
 ## Paging
 
@@ -32,7 +32,7 @@ A **present bit** in this table indicates whether a virtual page is currently ma
 The MMU accesses the page table and translates virtual addresses into physical addresses.
 If a process issues an instruction that accesses an invalid virtual address, the MMU calls the kernel for handling the situation (**page fault**).
 
-![Paging](10-paging.png)
+![Paging](img/10-paging.png)
 
 ### Page table entry
 
@@ -238,32 +238,54 @@ This only causes one TLB miss for each row, i.e. 128.
 
 ## Page tables and virtualization
 
-Goal: mapping guest page tables to host page tables efficiently.
+So far we only concerned ourselves with traditional system architectures.
+But what about hardware virtualization?
+In a traditional system, we only have a kernel address space and a seperate address space for each process.
+But now we have a whole other operating system running in a virtual machine.
+We can either just let the hypervisor manage the guest resources (**hosted virtualization**) or take care of that in the hosting OS (**bare-metal virtualization**).
 
-_TODO: introduction 9/17_
+This way, we have two levels of memory virtualization.
+At the hosts level, there is a mapping between phyiscal memory and virtual addresses.
+The hosts virtual addresses are perceived to be phyiscal addresses by the guest (**guest-physical addresses**).
+Within the virtual machine, those are mapped to **guest-virtual addresses**.
 
-### Hosted and bare-metal
-
-_TODO: 10/17_
+![Bare-metal (left) vs. hosted (right)](img/10-baremetal-vs-hosted.png)
 
 ### Two levels of page tables
 
 Host OS translates between physical and virtual (physical for the guest) addresses.
 Hypervisor translates between virtual and guest-virtual addresses.
 
-#### Shadow page tables
+But is there a faster way?
+
+### Shadow page tables
 
 Software-based virtualization of page tables.
-To keep PTs in sync: intercept changes to CR3, bits, &hellip;
-Adds too much overhead.
+The hypervisor maintains **shadow page tables** not visible to the guest and keeps them synchronized with the guests page tables.
 
-#### Hardware based virtualization
+![Shadow page tables](img/10-shadow-page-tables.png)
 
-Hardware implements PT capacities for seperate page tables.
+Due to a lot of trapping to the hypervisor necessary because of page table synchronization, this adds too much overhead.
 
-_TODO: 15/17_
+### Hardware based virtualization
 
-Advantages, disadvantages.
+Capacities for nested page tables may be implemented in hardware (e.g. **NPT** by AMD, **EPT** by Intel).
+
+![](img/10-nested-pt.png)
+
+![](img/10-amd-npt-guest-tables.png)
+
+### Pros and cons of hardware-based virtualization of address translation
+
+Advantages include:
+
+- The guest can manage its page tables without trapping to the hypervisor
+- No need for the hypervisor to keep a copy of the guests page table
+- Additional performance optimizations can be implemented in memory, e.g. nested TLBs, TLB partioning, page-walk cachec, &hellip;
+
+Disadvantages include:
+
+- `n`th level guest on `m`th level host page table lookup needs `(n + 1) * m` memory accesses, leading to a higher cost of TLB misses
 
 ## Examples
 
