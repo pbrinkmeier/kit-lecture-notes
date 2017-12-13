@@ -42,7 +42,7 @@
 
 ## TL;DR
 
-- **Paging** lays out physical memory into small, fixed-sized blocks, called **pages**
+- **Paging** lays out physical memory into small, fixed-size blocks, called **pages**
 - The **memory management unit** (MMU) uses **page tables** maintained by the operating system to translate **virtual addresses** into **physical addresses**
 - Different **page table layouts** have been developed in the past:
     - [Linear page table](#linear-page-table)
