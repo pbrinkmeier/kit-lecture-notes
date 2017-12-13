@@ -42,13 +42,14 @@
 
 ## TL;DR
 
-- **Page tables** are used by the to tell the MMU how it wants physical memory to be laid out and what to use it for (write-/read-only pages)
+- **Paging** lays out physical memory into small, fixed-sized blocks, called **pages**
+- The **memory management unit** (MMU) uses **page tables** maintained by the operating system to translate **virtual addresses** into **physical addresses**
 - Different **page table layouts** have been developed in the past:
     - [Linear page table](#linear-page-table)
     - [Hierarchical page table](#hierarchical-page-table)
     - [Linear inverted page table](#linear-inverted-page-table)
     - [Hashed inverted page table](#hashed-inverted-page-table)
-- Perfoming page table lookups slows down memory lookups and hence program execution a _lot_
+- Perfoming page table lookups slows down memory accesses and hence program execution a _lot_
     - A special cache called **translation lookaside buffer** (TLB) stores results of page table lookups
     - Typically about 95% of all translations are TLB hits  
 
