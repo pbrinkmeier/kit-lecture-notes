@@ -67,7 +67,7 @@ Safe and secure memory protection can only be achieved in hardware.
 A hardware device called **memory management unit** (MMU) maps virtual to physical addresses.
 Userspace programs only deal with those virtual addresses and never see real physical ones.
 
-![Memory management unit schema](img/09-mmu.png)
+![](img/09-mmu.png)
 
 ## Paging
 
@@ -79,7 +79,7 @@ A **present bit** in this table indicates whether a virtual page is currently ma
 The MMU accesses the page table and translates virtual addresses into physical addresses.
 If a process issues an instruction that accesses an invalid virtual address, the MMU calls the kernel for handling the situation (**page fault**).
 
-![Paging](img/10-paging.png)
+![](img/10-paging.png)
 
 ### Page table entry
 
@@ -108,7 +108,7 @@ Paging eliminates external fragmentation due to its fixed size blocks.
 However, **internal fragmentation** becomes a problem:
 If the memory allocated by a process is not exact multiple of the page size (which is mostly isn’t), some of the allocated memory is not used.
 
-![Internal fragmentation visualized](img/10-internal-fragmentation.png)
+![](img/10-internal-fragmentation.png)
 
 - Fragmentation:
     - Large pages ⇒ more memory is wasted due to internal fragmentation
@@ -128,7 +128,7 @@ In this layout, a virtual address consists of a **virtual page number** (VPN) an
 The virtual address is an index in an array of base addresses.
 The physical address is the sum of the base address and the page offset.
 
-![Translation of virtual address 0x10123 using a linear page table](img/10-paging-translation-scheme.png)
+![](img/10-paging-translation-scheme.png)
 
 Linear page tables are not used in practice, because the use a _lot_ of space.
 
@@ -146,7 +146,7 @@ An **inverted page table** stores mapping _from_ physical addresses to VPNs.
 Only one table per system is needed, because one table can serve all processes.
 This way, it uses only a fraction of the memory a linear or hierarchical page table would.
 
-![Linear inverted page table schema](img/10-linear-inverted-page-table.png)
+![](img/10-linear-inverted-page-table.png)
 
 The problem is that resolving an address happens in linear time, proportional to the amount of page frames.
 
@@ -154,7 +154,7 @@ The problem is that resolving an address happens in linear time, proportional to
 
 Just like an inverted page table, but a **hash anchor table**, indexed by hashed virtual page numbers, limits the search to at most a few page table entries.
 
-![Hashed inverted page table schema](img/10-hashed-inverted-page-table.png)
+![](img/10-hashed-inverted-page-table.png)
 
 #### Typical lookup in an hashed inverted page table
 
@@ -163,7 +163,7 @@ Just like an inverted page table, but a **hash anchor table**, indexed by hashed
 3. If the virtual page number of the entry does not match the one of the virtual address, look at the next one and repeat this step
 4. Use the page table entry to make the physical address
 
-![Lookup schema for hashed inverted page table](img/10-hashed-inverted-lookup.png)
+![](img/10-hashed-inverted-lookup.png)
 
 ## Translation lookaside buffer
 
@@ -184,7 +184,7 @@ Many TLB entries can be compared at the same time in hardware.
 That’s what makes the TLB fast.
 On every memory load and store operation, check if result is already cached, if not, look it up in the page table and insert it into the cache.
 
-![Translation lookaside buffer schema](img/10-translation-lookaside-buffer.png)
+![](img/10-translation-lookaside-buffer.png)
 
 ### TLB misses
 
@@ -262,22 +262,22 @@ Naïve approach:
 int data[128][128];
 
 for (int j = 0; j < 128; j++) {
-	for (int i = 0; i < 128; i++) {
-		data[i][j] = 0;
-	}
+    for (int i = 0; i < 128; i++) {
+        data[i][j] = 0;
+    }
 }
 ```
 
 This yields 16,384 (128×128) TLB misses because it sets the first cell of the first page, then the first of the second page, then the first of the third page and so on.
 The better approach is to iterate over a row before jumping to the next row:
 
-```
+```c
 int data[128][128];
 
 for (int j = 0; j < 128; j++) {
-	for (int i = 0; i < 128; i++) {
-		data[j][i] = 0; // indices swapped
-	}
+    for (int i = 0; i < 128; i++) {
+        data[j][i] = 0; // indices swapped
+    }
 }
 ```
 
@@ -296,7 +296,7 @@ At the hosts level, there is a mapping between phyiscal memory and virtual addre
 The hosts virtual addresses are perceived to be phyiscal addresses by the guest (**guest-physical addresses**).
 Within the virtual machine, those are mapped to **guest-virtual addresses**.
 
-![Bare-metal (left) vs. hosted (right)](img/10-baremetal-vs-hosted.png)
+![](img/10-baremetal-vs-hosted.png)
 
 ### Two levels of page tables
 
@@ -310,7 +310,7 @@ But is there a faster way?
 Software-based virtualization of page tables.
 The hypervisor maintains **shadow page tables** not visible to the guest and keeps them synchronized with the guests page tables.
 
-![Shadow page tables](img/10-shadow-page-tables.png)
+![](img/10-shadow-page-tables.png)
 
 Due to a lot of trapping to the hypervisor necessary because of page table synchronization, this adds too much overhead.
 
@@ -349,23 +349,23 @@ The page number p is subdivided into:
 - Index in **page directory** (p1): 10 bits
 - Index in **page table entry** (p2): 10 bits
 
-![A simple example of an hierarchical page table](img/10-hierarchical-page-table.png)
+![](img/10-hierarchical-page-table.png)
 
 ### Example: 32-bit Intel architecture (IA-32)
 
 IA-32 divides a virtual address into a 10-bit directory pointer, a 10-bit table pointer and a 12-bit offset.
 
-![IA-32 page table hierarchy overview](img/10-ia32-page-hierarchy.png)
+![](img/10-ia32-page-hierarchy.png)
 
 The **page directory** contains pointers to a page tables.
 The directory pointer points to such an entry.
 
-![IA-32 page directory](img/10-ia32-page-directory-entry.png)
+![](img/10-ia32-page-directory-entry.png)
 
 The **page table**s contain pointers to actual pages.
 The offset is added to such a pointer to get the physical address.
 
-![IA-32 page table](img/10-ia32-page-table-entry.png)
+![](img/10-ia32-page-table-entry.png)
 
 ### Example: Intel/AMD x86 64-bit
 
@@ -382,7 +382,7 @@ The offset is added to such a pointer to get the physical address.
     - PDE: 2 MiB page
     - PTE: 4 KiB page
 
-![x86-64 page table hierarchy](img/10-x86-64-page-table-hierarchy.png)
+![](img/10-x86-64-page-table-hierarchy.png)
 
 - Intel 4-level paging supports a maximum of 256 TiB virtual address space
     - 48 bit linear addresses
@@ -400,17 +400,17 @@ The offset is added to such a pointer to get the physical address.
 
 In newer architectures, the subpages shown below are deprecated.
 
-![ARM 32-bit page table hierarchy](img/10-arm32-page-table.png)
+![](img/10-arm32-page-table.png)
 
 ### Example: ARM 64-bit
 
 - 512 MiB pages with a 2 level page table: 1/13/29
 
-![ARM 64-bit large pages](img/10-arm64-512m.png)
+![](img/10-arm64-512m.png)
 
 - 64 KiB with a 3 level page table: 1/13/13/16
 
-![ARM 64-bit small pages](img/10-arm64-64k.png)
+![](img/10-arm64-64k.png)
 
 - Additional level using bits 47 to 42 supported
 
@@ -420,4 +420,4 @@ In newer architectures, the subpages shown below are deprecated.
 - Segementation yields virtual base, hash indicates entry in page table bucket
 - CPU searches page table bucket, calls OS if no matching entry exists
 
-![PowerPC 32-bit page table hierarchy](img/10-powerpc32-page-table.png)
+![](img/10-powerpc32-page-table.png)
