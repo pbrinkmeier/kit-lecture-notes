@@ -38,4 +38,14 @@ _Die Vorlesungsfolien und Übungsblätter sind in englischer Sprache verfasst, d
 - [08: Synchronization and Deadlocks](08-synchronizations-and-deadlocks.md) _20.11.2017, 21.11.2017_
 - [09: Memory management hardware](09-memory-management-hardware.md) _27.11.2017_
 - [10: Paging](10-paging.md) _28.11.2017, 04.12.2017_
+- [11: Caching](11-caching.md) _05.12.2017, 11.12.2017_
+- [12: Page Faults](12-page-faults.md) _05.12.2017_
+- [13: Page Replacement](13-page-replacement.md) _19.12.2017_
+- [14: Memory Allocation](14-memory-allocation.md) _08.01.2018_
+- [15: Secondary Storage Structure](15-secondary-storage.md) _09.01.2018, 15.01.2018_
+- [16: File Systems](16-file-systems.md) _16.01.2018_
+- [17: Implementing File Systems](17-implementing-fs.md) _22.01.2018, 23.01.2018_
+- [18: I/O System](18-io-system.md) _29.01.2018, 30.01.2018_
+- [19: I/O Virtualization (IOMMU, VT-d)](19-iommu.md) _05.02.2018_
+- [20: Operating System Structures](20-os-structures.md) _06.02.2018_
 - [Glossary](glossary.md) _(list of important terms and abbreviations)_
