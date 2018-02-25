@@ -2,6 +2,36 @@
 
 > 05.12.2017, 11.12.2017
 
+- [Managing memory](#managing-memory)
+- [CPU-cache location](#cpu-cache-location)
+- [Caches misses](#caches-misses)
+    - [Compulsory miss](#compulsory-miss)
+    - [Capacity miss](#capacity-miss)
+    - [Conflict miss](#conflict-miss)
+- [Write and replacement policies](#write-and-replacement-policies)
+    - [Write-through](#write-through)
+    - [Write-back](#write-back)
+    - [Write-allocate](#write-allocate)
+    - [Write-to-memory](#write-to-memory)
+- [Cache organization](#cache-organization)
+    - [Fully associative cache](#fully-associative-cache)
+    - [Direct mapped cache](#direct-mapped-cache)
+    - [Set-associative cache](#set-associative-cache)
+- [Cache design parameters](#cache-design-parameters)
+    - [Long cache lines vs. cache alignment](#long-cache-lines-vs-cache-alignment)
+- [Examples](#examples)
+    - [Virtually indexed, virtually tagged (ARMv4/ARMv5)](#virtually-indexed-virtually-tagged-armv4armv5)
+        - [Ambiguity problem](#ambiguity-problem)
+        - [Alias problem](#alias-problem)
+        - [VIVT cache management](#vivt-cache-management)
+        - [VIVT I/O](#vivt-io)
+    - [Virtually indexed, physically tagged](#virtually-indexed-physically-tagged)
+        - [VIPT cache management](#vipt-cache-management)
+        - [VIPT runtime properties](#vipt-runtime-properties)
+    - [Physically indexed, physically tagged](#physically-indexed-physically-tagged)
+        - [PIPT Random allocation conflicts](#pipt-random-allocation-conflicts)
+        - [PIPT Conflict mitigation](#pipt-conflict-mitigation)
+
 ## Managing memory
 
 Memory needs to be managed carefully.
