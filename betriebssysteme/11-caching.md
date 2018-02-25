@@ -19,8 +19,8 @@
     - [Set-associative cache](#set-associative-cache)
 - [Cache design parameters](#cache-design-parameters)
     - [Long cache lines vs. cache alignment](#long-cache-lines-vs-cache-alignment)
-- [Examples](#examples)
-    - [Virtually indexed, virtually tagged (ARMv4/ARMv5)](#virtually-indexed-virtually-tagged-armv4armv5)
+- [Indexing and tagging](#indexing-and-tagging)
+    - [Virtually indexed, virtually tagged](#virtually-indexed-virtually-tagged)
         - [Ambiguity problem](#ambiguity-problem)
         - [Alias problem](#alias-problem)
         - [VIVT cache management](#vivt-cache-management)
@@ -143,9 +143,11 @@ When the sizes of data structures are not aligned to the length of a cache line,
 This can cause multiple cache misses for the use of a single data structure.
 A solution is to pad each datastructure to a multiple of the line length.
 
-## Examples
+## Indexing and tagging
 
-### Virtually indexed, virtually tagged (ARMv4/ARMv5)
+Since most systems use virtual addresses nowadays, you have to think about whether you want to base the tags/indices on the virtual or phyiscal addresses.
+
+### Virtually indexed, virtually tagged
 
 ![](img/11-virtually-indexed-virtually-tagged.png)
 
