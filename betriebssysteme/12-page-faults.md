@@ -39,7 +39,8 @@ The MMU is a hardware device which maps virtual to physical addresses. User prog
 
 ![](img/10-paging.png)
 
-A so called **present bit** in the page table indicates whether a virtual **page** is currently mapped to physical memory, which the MMU automaticly translates (if valid). If a virtual address is used and currently _not_ mapped to physical memory, the MMU calls the OS to bring in the data. This is called a **page fault**.
+A so-called **present bit** in the page table indicates whether a virtual **page** is currently mapped to physical memory, which the MMU automaticly translates (if valid).
+If a virtual address is used and currently _not_ mapped to physical memory, the MMU calls the OS to bring in the data. This is called a **page fault**.
 
 ## Page Fault Handling
 
@@ -54,7 +55,7 @@ A so called **present bit** in the page table indicates whether a virtual **page
 
 ### Latency
 
-Let ```p``` with ```0 ≤ p ≤ 1.0``` be the page fault rate. The Effective Access Time (EAT) can then be calculated as follows:
+Let `p` with `0 ≤ p ≤ 1.0` be the page fault rate. The Effective Access Time (EAT) can then be calculated as follows:
 
 ```
 EAT = (1 - p) * memory access
@@ -74,7 +75,7 @@ If only one access out of 1.000 causes a page fault, the EAT will calculate to 8
 
 Page faults introduce a set of challenges, including the following questions:
 
-- What to eject? _(=> frame allocation)_
+- What to eject? _(⇒ frame allocation)_
   - how to allocate frames among processes?
   - which pages to keep in memory?
 - What to fetch?
@@ -93,7 +94,7 @@ Because 0-filled pages (**0-pages**) are required for stack, heap, .bss etc., ke
 
 #### How to resume?
 
-To resume a process after a page fault, some extra information is necessary. The hardware therefore provides info about the page fault. On Intel machines for example, the ```%cr2``` register contains the faulting virtual address.
+To resume a process after a page fault, some extra information is necessary. The hardware therefore provides info about the page fault. On Intel machines for example, the `%cr2` register contains the faulting virtual address.
 
 The OS then needs to figure out the context of the fault, this mainly includes identifying the faulting instruction:
 
@@ -101,14 +102,14 @@ The OS then needs to figure out the context of the fault, this mainly includes i
 - instruction fetch?
 - user access to kernel?
 
-**Idempotent instructions can just re-executed**, however more complex instructions must be re-started too.
+**Idempotent instructions can just be re-executed**, however more complex instructions must be re-started too.
 
 Some CISC (Complex Instruction Set Computer) instructions are difficult to restart, these include
 
 - block move of overlapping areas
 - string move instructions
 - auto in-/decrements of multiple locations
-- instructions that modify ```%esi```, ```%edi``` or ```%ecx``` registers
+- instructions that modify `%esi`, `%edi` or `%ecx` registers
 
 Possible solutions include
 
@@ -126,7 +127,7 @@ Possible solutions include
 
 Memory-mapped file I/O allows file I/O to be treated as routine memory access by mapping a disk block to a page. Initially, a page-sized portion of the file is read into a physical page. Subsequent reads from/writes to the file are treated as ordinary memory accesses.
 
-This simplifies file access because ```read()``` and ```write()``` system calls aren't necessary. Also, this allows several processes to map the same file.
+This simplifies file access because `read()` and `write()` system calls aren't necessary. Also, this allows several processes to map the same file.
 
 #### Shared Data Segments
 
@@ -169,7 +170,7 @@ S = ∑ s_i
 m = total frame num
 ```
 
-Allocation ```a_i``` for process ```p_i```:  
+Allocation `a_i` for process `p_i`:  
 ```a_i = (s_i / S) * m```
 
 Example:
@@ -184,7 +185,7 @@ a_2 = (127 / 137) * 64 ≈ 59
 
 ### Priority Allocation
 
-The **priority allocation** scheme uses priorities rather than size. In case process ```p_i``` generates a page fault, select one of its frames or a frame from a process with lower priority for replacement.
+The **priority allocation** scheme uses priorities rather than size. In case process `p_i` generates a page fault, select one of its frames or a frame from a process with lower priority for replacement.
 
 ### Memory Locality
 
@@ -214,14 +215,14 @@ This leads to low CPU utilization while processes wait for pages to be fetched f
 
 The working-set is a concept that defines how much memory a process requires.
 
-```∆``` (delta) is the time interval (**working-set window**) with a fixed number of page references.
+`∆` (delta) is the time interval (**working-set window**) with a fixed number of page references.
 
-```WSS_i``` is the working set of process ```p_i``` and contains the number of pages referenced in the most recent time ```∆```.  
-```∆``` to small: will not encompass entire locality  
-```∆``` to large: will encompass several localities  
-```∆ = ∞```: will encompass entire programm
+`WSS_i` is the working set of process `p_i` and contains the number of pages referenced in the most recent time `∆`.  
+`∆` to small: will not encompass entire locality  
+`∆` to large: will encompass several localities  
+`∆ = ∞`: will encompass entire programm
 
-```D = ∑ WSS_i```: total demand for frames. If ```D > m```: Thrashing (policy: suspend a process)
+`D = ∑ WSS_i`: total demand for frames. If `D > m`: Thrashing (policy: suspend a process)
 
 ![](img/12-working-set-1.png)
 
@@ -237,7 +238,7 @@ Therefore the second idea is to sacrifice precision for speed and let the MMU se
 
 ### Page Fault Frequency Allocation Scheme
 
-Establish a “acceptable” page fault rate with an upper and lower bound. If the actual rate is too low, give frames to other processes. Otherwise, allocate more frames to the process.
+Establish an “acceptable” page fault rate with an upper and lower bound. If the actual rate is too low, give frames to other processes. Otherwise, allocate more frames to the process.
 
 ![](img/12-frequency-allocation.png)
 
