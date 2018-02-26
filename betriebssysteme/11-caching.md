@@ -225,8 +225,8 @@ The probability X that we have p pages mapped to the same cache bin when allocat
 #### PIPT Conflict mitigation
 
 A solution to the problem above may be to “color” the virtual pages and page frames sequentially (e.g. red-yellow-green-blue-red-yellow…) and when possible to only assign pages to frames of the same color.
-This can be combined with “**page recoloring**” — i.e. analyzing access pattern and, if it is better in the long term, to recolour a page frame (that is, assigning it to a different area in the cache).
+This can be combined with “**page recoloring**” — i.e. analyzing access pattern and, if it is better in the long term, to recolor a page frame (that is, assigning it to a different area in the cache).
 
-![Cache recolouring visualized](img/11-page-recolouring.png)
+![Cache recoloring visualized](img/11-page-recoloring.png)
 
 Another method is to divide phyiscal memory into disjoint subsets and to use those subsets for different purposes: for example, red and blue pages for the operating system, yellow pages for a real-time application and green pages for background processes.
