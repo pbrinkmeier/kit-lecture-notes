@@ -111,7 +111,7 @@ The line offset determines which byte to choose from the cache.
 On a cache access, the whole cache is searched for the tag (this can be done in parallel in hardware).
 
 ### Direct mapped cache
-tag
+
 ![Visualization of a direct mapped cache with 8192 lines](img/11-direct-mapped.png)
 
 A hash function (which may just be `addressBits -> addressBits[x..y]`) determines which cache line an address is assigned to.
@@ -130,7 +130,7 @@ One could say that a 1-way associative cache is the same as a direct mapped cach
 ## Cache design parameters
 
 - Size and set size: set-associative with large sets for small caches
-- Line lenght: long cache lines for spatial locality
+- Line length: long cache lines for spatial locality
 - Write policy: write-back for temporal locality
 - Replacement policy
 - Whether to use virtual or physical addresses for tagging/indexing
@@ -155,21 +155,17 @@ Since most systems use virtual addresses nowadays, you have to think about wheth
 
 Identical virtual addresses point to the same physical address at different points in time.
 
-_TODO: more on that_
-
 #### Alias problem
 
 Different virtual addresses point to the same physical address.
 
-_TODO: more on that_
-
 #### VIVT cache management
 
 - On a **context switch**, the cache must be flushed, as it is likely that the same virtual addresses refer to different phyiscal addresses in different contexts.
-- On a **fork()**, the child needs a complete copy of the parents address space. If the child runs in the context of the parent, special cache management is needed.
-- On an **exec()**, the cache must be flushed. Note that for a **write-back** caches its not necessary to actually write to main memory here, as the contents are overwritten anyway.
-- On an **exit()**, the cache must be flushed.
-- On a **sbrk()**, the cache must be flushed (for the now invalid memory area).
+- On a `fork()`, the child needs a complete copy of the parents address space. If the child runs in the context of the parent, special cache management is needed.
+- On an `exec()`, the cache must be flushed. Note that for a **write-back** caches its not necessary to actually write to main memory here, as the contents are overwritten anyway.
+- On an `exit()`, the cache must be flushed.
+- On a `sbrk()`, the cache must be flushed (for the now invalid memory area).
 - Shared memory and memory-mapped files lead to an **alias problem** (multiple virtual addresses point to the same physical address).
     - Can be circumvented by disallowing this or simply not caching it
     - Or make each frame accessible by exactly one virtual address at each point in time by eliminating alias pages
@@ -211,7 +207,7 @@ But if you make the cache size a small multiple of the page size (factor 1 to 4)
 
 Physically indexed, physically tagged (PIPT) caches are completely transparent to the CPU.
 They do not require any performance-critical support from the system (including I/O).
-Multiprocessor systems can use a cache coherency protocal implemented in hardware (fast).
+Multiprocessor systems can use a cache coherency protocol implemented in hardware (fast).
 
 #### PIPT Random allocation conflicts
 
@@ -220,12 +216,14 @@ Multiprocessor systems can use a cache coherency protocal implemented in hardwar
 Contiguous virtual memory is often mapped to page frames in an arbitrary order.
 This may lead to cache conflicts — the cache could only partially be used, or some cache regions could be constantly causing **capacity misses** or **conflict misses**.
 
-_TODO: include formula?_
+The probability X that we have p pages mapped to the same cache bin when allocating P pages on a cache with C colors is:
+
+![](img/11-conflict-probability.png)
 
 #### PIPT Conflict mitigation
 
-A solution to the problem above may be to “colour” the virtual pages and page frames sequentially (e.g. red-yellow-green-blue-red-yellow…) and when possible to only assign pages to frames of the same colour.
-This can be combined with “**page recolouring**” — i.e. analyzing access pattern and, if it is better in the long term, to recolour a page frame (that is, assigning it to a different area in the cache).
+A solution to the problem above may be to “color” the virtual pages and page frames sequentially (e.g. red-yellow-green-blue-red-yellow…) and when possible to only assign pages to frames of the same color.
+This can be combined with “**page recoloring**” — i.e. analyzing access pattern and, if it is better in the long term, to recolour a page frame (that is, assigning it to a different area in the cache).
 
 ![Cache recolouring visualized](img/11-page-recolouring.png)
 
