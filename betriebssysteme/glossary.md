@@ -1,12 +1,52 @@
+[zurück](README.md)
+
 # Glossary
 
 ## Chapter 01: Orga and overview
 
+**CPU**: Central processing unit
+
+**RAM**: Random-access memory
+ 
+**APIC**: Advanced Programmable Interrupt Controller _(handles interrupts)_
+
+**PMIO**: Port-mapped I/O
+
+**MMIO**: Memory-mapped I/O
+
 ## Chapter 02: OS concepts
+
+**API**: Application programming interface
+
+**NIC**: Network interface card
+
+**MMU**: Memory management unit _(built-in CPU hardware that translates virtual to physical addresses)_
+
+**PCB**: Process control block _(contains information about allocated resources)_
+
+**AS**: Address space _(all virtual memory locations a program can name, consists of sections like stack, data and text)_
+
+**IP**: Instruction pointer _(stores currently executed instruction)_
+
+**SP**: Stack pointer _(stores address of stack top)_
+
+**PSW**: Program status word _(contains flags about execution history)_
 
 ## Chapter 03: Processes, Address Spaces and Compiling, Linking, Loading
 
+**BSS**: Block started by symbol _(address space segment for statically allocated/non-initialized variables)_
+
+**RO-Data**: Read-only data _(address space segment for constant numbers and strings)_
+
+**BRK/SBRK**: Break pointer (heap) _(highest address of heap and address space)_
+
 ## Chapter 04: Process API
+
+**BP/FP**: Base pointer/frame pointer _(used to organize stack frames)_
+
+**ABI**: Application binary interface _(standardized interface between programs, modules and OS)_
+
+**PID**: Process identifier
 
 ## Chapter 05: Threads
 
