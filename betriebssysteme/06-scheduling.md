@@ -106,7 +106,7 @@ This lecture will focus on CPU schedulers.
 ### Process scheduling queues
 
 - **Job queue**: Set of _all_ processes in the system
-- **Ready queue**: Processes in **ready** or **waiting ** state
+- **Ready queue**: Processes in **ready** or **waiting** state
 - **Device queue**: Processes waiting for an I/O device
 
 ![](img/06-scheduling-queues.png)
