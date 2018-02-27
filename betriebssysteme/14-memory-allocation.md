@@ -6,6 +6,31 @@
 
 ## Table of contents
 
+- [TL;DR](#tldr)
+- [Dynamic memory allocation](#dynamic-memory-allocation)
+- [What does a dynamic memory allocator do?](#what-does-a-dynamic-memory-allocator-do)
+- [Implementation details](#implementation-details)
+    - [Bitmap](#bitmap)
+    - [List](#list)
+- [Why is dynamic memory allocation hard?](#why-is-dynamic-memory-allocation-hard)
+    - [An example of a pathological case](#an-example-of-a-pathological-case)
+- [Common allocation algorithms](#common-allocation-algorithms)
+    - [Best-fit](#best-fit)
+    - [Worst-fit](#worst-fit)
+    - [First-fit](#first-fit)
+        - [Pathological case for first-fit](#pathological-case-for-first-fit)
+        - [First-fit sorted by address order](#first-fit-sorted-by-address-order)
+        - [LIFO first-fit](#lifo-first-fit)
+        - [Next-fit](#next-fit)
+    - [Buddy allocator](#buddy-allocator)
+    - [SLAB allocator](#slab-allocator)
+- [The real world](#the-real-world)
+    - [Ramp](#ramp)
+    - [Peaks](#peaks)
+        - [Exploiting peaks](#exploiting-peaks)
+    - [Plateau](#plateau)
+    - [Other patterns](#other-patterns)
+
 ## TL;DR
 
 - **Dynamic memory allocation** means allocating and freeing memory chunks of arbitrary size at runtime
