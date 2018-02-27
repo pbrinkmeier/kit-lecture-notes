@@ -50,7 +50,25 @@
 
 ## Chapter 05: Threads
 
+**TID**: Thread identifier
+
+**PCB**: Process control block _(contains information about allocated resources, known to OS)_
+
+**TCB**: Thread control block _(per thread data, OS knowledge depends on thread model)_
+
+**ULT**: User level threads
+
+**KLT**: Kernel level threads
+
 ## Chapter 06: Dispatching, Scheduling, Scheduling Policies
+
+**FCFS**: First come first served
+
+**(P)SJF**: (Preemptive) Shortest job first
+
+**(V)RR**: (Virtual) Round robin
+
+**MLFQ**: Multi-level feedback queue
 
 ## Chapter 07: Inter Process Communication
 
