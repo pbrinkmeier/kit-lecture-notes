@@ -105,7 +105,7 @@ When an unusual condition occurs:
 2. CPU interrupts process, gives kernel control
 3. Kernel tries to resolve problem and continue faulting instruction or kills the process
 
-**Exceptions always occur synchronously and in the contex of a process.**
+**Exceptions always occur synchronously and in the context of a process.**
 
 ## OS concepts
 
