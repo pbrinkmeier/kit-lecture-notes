@@ -168,3 +168,43 @@ The program only allocates data, but never (or rarely) deallocates any.
 
 ![Memory use graph of a LRU simulator, showing the ramp pattern](img/14-ramp.png)
 
+### Peaks
+
+A lot of memory is allocated and then freed in a short period of time, repeatedly.
+Fragmentation is likely to happen.
+
+![Memory use graph of GCC compiling with full optimization, showing the peaks pattern](img/14-peaks.png)
+
+#### Exploiting peaks
+
+In peak phases, a lot of memory is allocated, then everything is freed.
+One could introduce a new interface: allocation as before, but free everything at once.
+This is called **arena allocation**, **object stack** or `alloca`/procedure call (by compiler people).
+
+An **arena** is a linked list of huge chunks of memory.
+It basically works just like the list approach presented above.
+The advantages are that it is just as simple as the list approach, and less space is wasted.
+
+![Arena allocation](img/14-arena-allocation.png)
+
+### Plateau
+
+A lot of memory is allocated and in use for a long time.
+
+![Memory use graph of a perl script, showing the plateau pattern](img/14-plateau.png)
+
+### Other patterns
+
+- Most programs only allocate a small number of different sizes
+- Fragmentation is more important at peak use than at low use
+- Most allocations are rather small (less than 10 words)
+
+You can utilize those observations by segregating allocated data, i.e. placing seemingly similar allocations next to each other.
+For example, chunks that have been allocated at the same time may also be deallocated at the same time.
+Also, chunks of differing sizes may be deallocated at different times.
+You have to find a good heuristic for determining how similar two allocations are.
+
+Below is an example of a segregation algorithm that places chunks of the same size together.
+As you can see, after freeing the grey blocks, the version employing segregation has a lot more continuous free space than the one without.
+
+![Segregation in action](img/14-segregation.png)
