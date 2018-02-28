@@ -72,27 +72,83 @@
 
 ## Chapter 07: Inter Process Communication
 
+**IPC**: Inter process communication
+
+**POSIX**: Portable Operating System Interface _(family of standards for operating systems, introduced with message queues and shared memory here)_
+
+**CS**: Critical section
+
+**DNI bit**: Do not interrupt bit
+
 ## Chapter 08: Synchronization and Deadlocks
+
+**CV**: Condition variable
+
+**RAG**: Resource allocation graph _(representation of system resources and their allocations)_
+
+**WFG**: Wait-for graph _(representation of processes waiting for certain resources)_
 
 ## Chapter 09: Memory Management Hardware
 
+**STBR**: Segment-table base register _(points to segment table location of current process)_
+
+**STLR**: Segment-table length register _(indicates number of segments used by process)_
+
+**vpn**: Virtual page numbers
+
+**pfn**: Page frame numbers
+
+**PTBR**: Page table base register _(stores starting physical address of first level page table, %CR3 register on x86-64)_
+
+**PML4**: Page map level 4 _(4-level hierarchical page table)_
+
+**PDPT**: Page directory pointers table
+
+**PD**: Page directory
+
+**PTE**: Page table entry
+
 ## Chapter 10: Paging
+
+**LIPT**: Linear inverted page table
+
+**TLB**: Translation lookaside buffer _(cache for most recent memory address translations)_
+
+**ASID**: Address space identifier
+
+**EAT**: Effective access time
 
 ## Chapter 11: Caching
 
 ## Chapter 12: Page Faults
 
+**COW**: Copy on write
+
 ## Chapter 13: Page Replacement Policies
+
+**FIFO**: First-in first-out
+
+**LRU**: Least recently used
 
 ## Chapter 14: Memory Allocation
 
+**LIFO**: Last-in first-out
+
 ## Chapter 15: Secondary Storage Structure
 
+**RAID**: Redundant array of independent disks 
+
 ## Chapter 16: File Systems
+
+**FAT**: File Allocation Table
+
+**MS-DOS**: Microsoft Disk Operating System
 
 ## Chapter 17: Implementing File Systems
 
 ## Chapter 18: I/O System
+
+**DMA**: Direct memory access
 
 ## Chapter 19: I/O Virtualization (IOMMU)
 
